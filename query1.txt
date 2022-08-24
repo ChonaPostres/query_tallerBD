@@ -20,6 +20,7 @@ CREATE TABLE if not exists paises
     constraint pk_paises primary key (codigopais)
 );
 
+
 create table if not exists regiones (
 	idregion INTEGER not null,
 	region varchar(100) not null,
@@ -113,4 +114,41 @@ create table if not exists tiposdespachos (
 	idtipodespacho integer not null,
 	tipodespacho varchar(255),
 	constraint pk_tiposdespachos primary key (idtipodespacho)
+);
+create table if not exists tiposdespachos (
+	idtipodespacho integer not null,
+	tipodespacho varchar(255),
+	constraint pk_tiposdespachos primary key (idtipodespacho)
+);
+CREATE TABLE if not exists tiposmonedas
+(
+    codigomoneda character(3) NOT NULL,
+    nombremoneda character varying(100) NOT NULL,
+    constraint pk_tiposmonedas primary key (codigomoneda)
+);
+CREATE TABLE if not exists formaspagos
+(
+    idformapago integer NOT NULL,
+    formapago character varying(255),
+    constraint pk_formaspagos primary key (idformapago)
+);
+CREATE TABLE if not exists categorias
+(
+    codigocategoria bigint NOT NULL,
+    categoria character varying(255),
+    constraint pk_categorias primary key (codigocategoria)
+);
+CREATE TABLE if not exists unidadesmedidas
+(
+    codigounidadmedida serial NOT NULL,
+    unidadmedida character varying(255) NOT NULL,
+    constraint pk_unidadesmedidas primary key (codigounidadmedida)
+);
+CREATE TABLE if not exists productos
+(
+    codigoproductos bigint NOT NULL,
+    nombreproducto character varying(250) NOT NULL,
+	rubro bigint,
+    constraint pk_productos primary key (codigoproductos),
+	constraint fk_productos_rubros foreign key (rubro) references rubros(id_rubro) 
 );
