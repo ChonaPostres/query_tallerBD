@@ -4,11 +4,12 @@ create table if not exists esquemanuevo.rubros (
 	rubro varchar(255) not null,
 	rubropadre int,
 	constraint pk_rubros primary key (id_rubro)
+	--constraint fk_rubros_rubros foreign key (rubropadre) references rubros(id_rubro)
 );
 
 
-alter table esquemanuevo.rubros add constraint fk_rubros_rubros
-	foreign key (rubropadre) references esquemanuevo.rubros(id_rubro);
+/*alter table esquemanuevo.rubros add constraint fk_rubros_rubros
+	foreign key (rubropadre) references esquemanuevo.rubros(id_rubro);*/
 
 CREATE TABLE if not exists esquemanuevo.paises
 (
@@ -63,7 +64,7 @@ create table if not exists esquemanuevo.tipos (
 	codigotipo integer not null,
 	constraint pk_tipos primary key (tipo)
 );
-create table if not exists procedencias (
+create table if not exists esquemanuevo.procedencias (
 	idprocedencia serial not null,
 	procedencia varchar(255) not null,
 	tipo varchar(10),
@@ -148,4 +149,80 @@ CREATE TABLE if not exists esquemanuevo.productos
 	rubro bigint,
     constraint pk_productos primary key (codigoproductos),
 	constraint fk_productos_rubros foreign key (rubro) references esquemanuevo.rubros(id_rubro) 
+);
+CREATE TABLE if not exists esquemanuevo.licitaciones
+(
+    idlicitacion bigint NOT NULL,
+    codlicitacion character varying(255) NOT NULL,
+    linkl character varying(255) NOT NULL,
+	nombre text NOT NULL,
+	descripcion text not null,
+	procedencia integer not null,
+	estratodirecto character varying(3) not null,
+	escompraagil CHARACTER VARYING (3) not null,
+	codigotipo CHARACTER VARYING (10) not null,
+	idplandecompra CHARACTER VARYING (20),
+	codigoestado integer not null,
+	codigoestadoproveedor INTEGER not null,
+	fechacreacion date,
+	fechaenvio date,
+	fechasolicitudcancelacion date,
+	fechaultimamodificacion date,
+	fechaaceptacion date,
+	fechacancelacion date,
+	tieneitems integer,
+	montototal bigint,
+	tipomoneda CHARACTER (3),
+	montototalpesos bigint,
+	impuestos bigint,
+	tipoimpuesto integer,
+	descuentos bigint,
+	cargos bigint,
+	totalnetacc bigint,
+	codigounidadcompra integer,
+	codigosucursal integer,
+	financiamiento character varying(250),
+	porcentajeiva integer,
+	pais character varying (5),
+	tipodespacho integer,
+	formapago integer,
+	codigolicitacion character varying (255),
+	
+    constraint pk_licitaciones primary key (idlicitacion),
+	constraint fk_licitaciones_procedencias foreign key (procedencia) references esquemanuevo.procedencias(idprocedencia),
+	constraint fk_licitaciones_tipos foreign key (codigotipo) references esquemanuevo.tipos(tipo),
+	constraint fk_licitaciones_estadocompras foreign key (codigoestado) references esquemanuevo.estadoscompras(codigoestado),
+	constraint fk_licitaciones_estadosproveedores foreign key (codigoestadoproveedor) references esquemanuevo.estadosproveedores(codigoestado),
+	constraint fk_licitaciones_tiposmonedas foreign key (tipomoneda) references esquemanuevo.tiposmonedas(codigomoneda),
+	constraint fk_licitaciones_tiposimpuestos foreign key (tipoimpuesto) references esquemanuevo.tiposimpuestos(tipoimpuesto),
+	constraint fk_licitaciones_unidadescompras foreign key (codigounidadcompra) references esquemanuevo.unidadescompras(codigounidadcompra) ,
+	constraint fk_licitaciones_sucursales foreign key (codigosucursal) references esquemanuevo.sucursales(codigosucursal) ,
+	constraint fk_licitaciones_paises foreign key (pais) references esquemanuevo.paises(codigopais) ,
+	constraint fk_licitaciones_tiposdespachos foreign key (tipodespacho) references esquemanuevo.tiposdespachos(idtipodespacho) ,
+	constraint fk_licitaciones_formaspagos foreign key (formapago) references esquemanuevo.formaspagos(idformapago)
+	
+);
+create table if not exists esquemanuevo.itemeslicitaciones (
+	iditem bigint not null,
+	idlicitacion bigint not null,
+	codigocategoria bigint,
+	codigoproducto bigint,
+	especificacioncomprador text,
+	especificacionproveedor text,
+	cantidad integer,
+	unidadmedida integer,
+	monedaitem character(3),
+	precioneto bigint,
+	totalcargos integer,
+	totaldescuentos integer,
+	totalimpuestos integer,
+	totallineaneto bigint,
+	formapago integer,
+	constraint pk_itemeslicitaciones primary key (iditem),
+	constraint fk_itemeslicitaciones_licitaciones foreign key (idlicitacion) references esquemanuevo.licitaciones(idlicitacion),
+	constraint fk_itemeslicitaciones_categorias foreign key (codigocategoria) references esquemanuevo.categorias(codigocategoria),
+	constraint fk_itemeslicitaciones_productos foreign key (codigoproducto) references esquemanuevo.productos(codigoproductos),
+	constraint fk_itemeslicitaciones_unidadesmedidas foreign key (unidadmedida) references esquemanuevo.unidadesmedidas(codigounidadmedida),
+	constraint fk_itemeslicitaciones_tiposmonedas foreign key (monedaitem) references esquemanuevo.tiposmonedas(codigomoneda),
+	constraint fk_itemeslicitaciones_formaspagos foreign key (formapago) references esquemanuevo.formaspagos(idformapago)
 );
