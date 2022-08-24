@@ -1,0 +1,78 @@
+
+create table if not exists rubros (
+	id_rubro serial not null,
+	rubro varchar(255) not null,
+	rubropadre int,
+	constraint pk_rubros primary key (id_rubro),
+	constraint fk_rubros_rubros foreign key (rubropadre) references rubros(id_rubro)
+);
+
+create schema if not exists esquemanuevo AUTHORIZATION postgres;
+
+
+/*alter table esquemanuevo.rubros add constraint fk_rubros_rubros
+	foreign key (rubropadre) references esquemanuevo.rubros(id_rubros);*/
+
+CREATE TABLE if not exists paises
+(
+    codigopais character varying(5) NOT NULL,
+    pais character varying(100) NOT NULL,
+    constraint pk_paises primary key (codigopais)
+);
+
+create table if not exists regiones (
+	idregion INTEGER not null,
+	region varchar(100) not null,
+	pais varchar(5) not null,
+	constraint pk_regiones primary key (idregion),
+	constraint fk_regiones_paises foreign key (pais) references paises(codigopais)
+);
+create table if not exists ciudades (
+	idciudad serial not null,
+	region integer not null,
+	ciudad varchar(255) not null,
+	constraint pk_ciudades primary key (idciudad),
+	constraint fk_ciudades foreign key (region) references regiones(idregion)
+);
+create table if not exists actividadesproveedores (
+	idactividadproveedor serial not null,
+	actividadproveedor varchar(255),
+	constraint pk_actividadesproveedores primary key (idactividadproveedor)
+);
+create table if not exists proveedores (
+	codigoproveedor integer not null,
+	nombreproveedor varchar(255) not null,
+	actividad integer not null,
+	comuna integer not null,
+	promedioevaluacion double precision,
+	cantidadevaluacion integer,
+	constraint pk_proveedores primary key (codigoproveedor),
+	constraint fk_proveedores_actividadesproveedores foreign key (actividad) references actividadesproveedores(idactividadproveedor),
+	constraint fk_proveedores_ciudades foreign key (comuna) references ciudades(idciudad)
+);
+create table if not exists sucursales (
+	codigosucursal integer not null,
+	rutsucursal varchar(12) not null,
+	sucursal varchar(255),
+	proveedor integer,
+	constraint pk_sucursales primary key (codigosucursal),
+	constraint fk_sucursales_proveedores foreign key (proveedor) references proveedores(codigoproveedor)
+);
+create table if not exists tipos (
+	tipo varchar(10) not null,
+	codigoabreviatura character(10) not null,
+	descripcion varchar(200) not null,
+	codigotipo integer not null,
+	constraint pk_tipos primary key (tipo)
+);
+create table if not exists procedencias (
+	idprocedencia serial not null,
+	procedencia varchar(255) not null,
+	tipo varchar(10),
+	constraint pk_procedencias primary key (idprocedencia),
+	constraint fk_procedencias_tipos foreign key (tipo) references tipos(tipo)
+);
+
+
+
+
