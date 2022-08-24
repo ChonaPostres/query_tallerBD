@@ -8,8 +8,8 @@ create table if not exists esquemanuevo.rubros (
 );
 
 
-/*alter table esquemanuevo.rubros add constraint fk_rubros_rubros
-	foreign key (rubropadre) references esquemanuevo.rubros(id_rubro);*/
+alter table esquemanuevo.rubros add constraint fk_rubros_rubros
+	foreign key (rubropadre) references esquemanuevo.rubros(id_rubro);
 
 CREATE TABLE if not exists esquemanuevo.paises
 (

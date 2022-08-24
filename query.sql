@@ -1,11 +1,3 @@
-
-create table if not exists rubros (
-	id_rubro serial not null,
-	rubro varchar(255) not null,
-	rubropadre int,
-	constraint pk_rubros primary key (id_rubro),
-	constraint fk_rubros_rubros foreign key (rubropadre) references rubros(id_rubro)
-);
 create schema if not exists esquemanuevo AUTHORIZATION postgres;
 create table if not exists esquemanuevo.rubros (
 	id_rubro serial not null,
@@ -16,8 +8,8 @@ create table if not exists esquemanuevo.rubros (
 );
 
 
-/*alter table esquemanuevo.rubros add constraint fk_rubros_rubros
-	foreign key (rubropadre) references esquemanuevo.rubros(id_rubro);*/
+alter table esquemanuevo.rubros add constraint fk_rubros_rubros
+	foreign key (rubropadre) references esquemanuevo.rubros(id_rubro);
 
 CREATE TABLE if not exists esquemanuevo.paises
 (
@@ -233,150 +225,4 @@ create table if not exists esquemanuevo.itemeslicitaciones (
 	constraint fk_itemeslicitaciones_unidadesmedidas foreign key (unidadmedida) references esquemanuevo.unidadesmedidas(codigounidadmedida),
 	constraint fk_itemeslicitaciones_tiposmonedas foreign key (monedaitem) references esquemanuevo.tiposmonedas(codigomoneda),
 	constraint fk_itemeslicitaciones_formaspagos foreign key (formapago) references esquemanuevo.formaspagos(idformapago)
-);
-
-create schema if not exists esquemanuevo AUTHORIZATION postgres;
-
-
-/*alter table esquemanuevo.rubros add constraint fk_rubros_rubros
-	foreign key (rubropadre) references esquemanuevo.rubros(id_rubros);*/
-
-CREATE TABLE if not exists paises
-(
-    codigopais character varying(5) NOT NULL,
-    pais character varying(100) NOT NULL,
-    constraint pk_paises primary key (codigopais)
-);
-
-
-create table if not exists regiones (
-	idregion INTEGER not null,
-	region varchar(100) not null,
-	pais varchar(5) not null,
-	constraint pk_regiones primary key (idregion),
-	constraint fk_regiones_paises foreign key (pais) references paises(codigopais)
-);
-create table if not exists ciudades (
-	idciudad serial not null,
-	region integer not null,
-	ciudad varchar(255) not null,
-	constraint pk_ciudades primary key (idciudad),
-	constraint fk_ciudades foreign key (region) references regiones(idregion)
-);
-create table if not exists actividadesproveedores (
-	idactividadproveedor serial not null,
-	actividadproveedor varchar(255),
-	constraint pk_actividadesproveedores primary key (idactividadproveedor)
-);
-create table if not exists proveedores (
-	codigoproveedor integer not null,
-	nombreproveedor varchar(255) not null,
-	actividad integer not null,
-	comuna integer not null,
-	promedioevaluacion double precision,
-	cantidadevaluacion integer,
-	constraint pk_proveedores primary key (codigoproveedor),
-	constraint fk_proveedores_actividadesproveedores foreign key (actividad) references actividadesproveedores(idactividadproveedor),
-	constraint fk_proveedores_ciudades foreign key (comuna) references ciudades(idciudad)
-);
-create table if not exists sucursales (
-	codigosucursal integer not null,
-	rutsucursal varchar(12) not null,
-	sucursal varchar(255),
-	proveedor integer,
-	constraint pk_sucursales primary key (codigosucursal),
-	constraint fk_sucursales_proveedores foreign key (proveedor) references proveedores(codigoproveedor)
-);
-create table if not exists tipos (
-	tipo varchar(10) not null,
-	codigoabreviatura character(10) not null,
-	descripcion varchar(200) not null,
-	codigotipo integer not null,
-	constraint pk_tipos primary key (tipo)
-);
-create table if not exists procedencias (
-	idprocedencia serial not null,
-	procedencia varchar(255) not null,
-	tipo varchar(10),
-	constraint pk_procedencias primary key (idprocedencia),
-	constraint fk_procedencias_tipos foreign key (tipo) references tipos(tipo)
-);
-create table if not exists estadoscompras (
-	codigoestado integer not null,
-	estado varchar(200),
-	constraint pk_estadoscompras primary key (codigoestado)
-);
-create table if not exists estadosproveedores (
-	codigoestado integer not null,
-	estado varchar(200),
-	constraint pk_estadosproveedores primary key (codigoestado)
-);
-create table if not exists tiposimpuestos (
-	tipoimpuesto serial not null,
-	impuesto varchar(100),
-	constraint pk_tiposimpuestos primary key (tipoimpuesto)
-);
-create table if not exists sectores(
-	idsector serial not null,
-	sector varchar(255) not null,
-	constraint pk_sectores primary key (idsector)
-);
-create table if not exists organismospublicos (
-	codigoorganismopublico integer not null,
-	organismopublico varchar(255) not null,
-	sector integer not null,
-	constraint pk_organismospublicos primary key (codigoorganismopublico),
-	constraint fk_organismospublicos_sectores foreign key (sector) references sectores(idsector)
-);
-create table if not exists unidadescompras (
-	codigounidadcompra integer not null,
-	rutunidadcompra varchar(12) not null,
-	unidadcompra varchar(255),
-	codigoorganismopublico integer not null,
-	ciudad integer not null,
-	constraint pk_unidadescompras primary key (codigounidadcompra),
-	constraint fk_unidadescompras_organismospublicos foreign key (codigoorganismopublico) references organismospublicos(codigoorganismopublico),
-	constraint fk_unidadescompras_ciudades foreign key (ciudad) references ciudades(idciudad)
-);
-create table if not exists tiposdespachos (
-	idtipodespacho integer not null,
-	tipodespacho varchar(255),
-	constraint pk_tiposdespachos primary key (idtipodespacho)
-);
-create table if not exists tiposdespachos (
-	idtipodespacho integer not null,
-	tipodespacho varchar(255),
-	constraint pk_tiposdespachos primary key (idtipodespacho)
-);
-CREATE TABLE if not exists tiposmonedas
-(
-    codigomoneda character(3) NOT NULL,
-    nombremoneda character varying(100) NOT NULL,
-    constraint pk_tiposmonedas primary key (codigomoneda)
-);
-CREATE TABLE if not exists formaspagos
-(
-    idformapago integer NOT NULL,
-    formapago character varying(255),
-    constraint pk_formaspagos primary key (idformapago)
-);
-CREATE TABLE if not exists categorias
-(
-    codigocategoria bigint NOT NULL,
-    categoria character varying(255),
-    constraint pk_categorias primary key (codigocategoria)
-);
-CREATE TABLE if not exists unidadesmedidas
-(
-    codigounidadmedida serial NOT NULL,
-    unidadmedida character varying(255) NOT NULL,
-    constraint pk_unidadesmedidas primary key (codigounidadmedida)
-);
-CREATE TABLE if not exists productos
-(
-    codigoproductos bigint NOT NULL,
-    nombreproducto character varying(250) NOT NULL,
-	rubro bigint,
-    constraint pk_productos primary key (codigoproductos),
-	constraint fk_productos_rubros foreign key (rubro) references rubros(id_rubro) 
 );
