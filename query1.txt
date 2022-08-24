@@ -72,7 +72,45 @@ create table if not exists procedencias (
 	constraint pk_procedencias primary key (idprocedencia),
 	constraint fk_procedencias_tipos foreign key (tipo) references tipos(tipo)
 );
-
-
-
-
+create table if not exists estadoscompras (
+	codigoestado integer not null,
+	estado varchar(200),
+	constraint pk_estadoscompras primary key (codigoestado)
+);
+create table if not exists estadosproveedores (
+	codigoestado integer not null,
+	estado varchar(200),
+	constraint pk_estadosproveedores primary key (codigoestado)
+);
+create table if not exists tiposimpuestos (
+	tipoimpuesto serial not null,
+	impuesto varchar(100),
+	constraint pk_tiposimpuestos primary key (tipoimpuesto)
+);
+create table if not exists sectores(
+	idsector serial not null,
+	sector varchar(255) not null,
+	constraint pk_sectores primary key (idsector)
+);
+create table if not exists organismospublicos (
+	codigoorganismopublico integer not null,
+	organismopublico varchar(255) not null,
+	sector integer not null,
+	constraint pk_organismospublicos primary key (codigoorganismopublico),
+	constraint fk_organismospublicos_sectores foreign key (sector) references sectores(idsector)
+);
+create table if not exists unidadescompras (
+	codigounidadcompra integer not null,
+	rutunidadcompra varchar(12) not null,
+	unidadcompra varchar(255),
+	codigoorganismopublico integer not null,
+	ciudad integer not null,
+	constraint pk_unidadescompras primary key (codigounidadcompra),
+	constraint fk_unidadescompras_organismospublicos foreign key (codigoorganismopublico) references organismospublicos(codigoorganismopublico),
+	constraint fk_unidadescompras_ciudades foreign key (ciudad) references ciudades(idciudad)
+);
+create table if not exists tiposdespachos (
+	idtipodespacho integer not null,
+	tipodespacho varchar(255),
+	constraint pk_tiposdespachos primary key (idtipodespacho)
+);
