@@ -6,7 +6,8 @@ from traspaso;
 /*insert into paises(codigopais, pais)
 select distinct pais, 'Chile'
 from traspaso
-where pais is not null;*/
+where pais = 'CL';*/
+--delete from paises;
 
 insert into actividadesproveedores(actividadproveedor)
 select distinct actividadproveedor
@@ -16,8 +17,16 @@ from traspaso;
 select distinct cast(codigoestado as integer), estadoproveedor
 from traspaso;*/
 
+/*insert into estadoscompras(codigoestado, estado)
+select distinct cast(codigoestado as integer), estado
+from traspaso;*/
+
 insert into unidadesmedidas(unidadmedida)
 select distinct unidadmedida
+from traspaso;
+
+insert into formaspagos(idformapago, formapago)
+select distinct cast(formapago as integer), formapago2
 from traspaso;
 
 /*insert into categorias(codigocategoria, categoria)
@@ -38,6 +47,18 @@ insert into tiposimpuestos(impuesto)
 select distinct tipoimpuesto
 from traspaso;
 
-insert into tiposmonedas(codigomoneda, nombremoneda)
+/*insert into tiposmonedas(codigomoneda, nombremoneda)
 select distinct monedaitem,  tipomoneda
-from traspaso
+from traspaso;*/
+
+--delete from actividadesproveedores;
+--delete from categorias;
+--delete from ciudades;
+--delete from estadoscompras;
+--delete from estadosproveedores;
+--delete from paises;
+--delete from sectores;
+--delete from formaspagos;
+--delete from unidadesmedidas;
+--delete from tiposimpuestos;
+--delete from tiposmonedas;
