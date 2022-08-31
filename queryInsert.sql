@@ -1,11 +1,12 @@
 
 insert into sectores(sector)
-select DISTINCT sector
+select distinct sector
 from traspaso;
 
-/*insert into paises(pais)
-select distinct pais
-from traspaso;*/
+/*insert into paises(codigopais, pais)
+select distinct pais, 'Chile'
+from traspaso
+where pais is not null;*/
 
 insert into actividadesproveedores(actividadproveedor)
 select distinct actividadproveedor
@@ -24,3 +25,19 @@ select distinct cast(codigocategoria as bigint), categoria
 from traspaso
 where codigocategoria is not 'NA'
 ;*/
+
+/*insert into tipos(tipo, codigoabreviatura,descripcion,codigotipo)
+select distinct cast (tipo as character varying (10)), codigoabreviatura,descripcion,cast (codigotipo as integer)
+from traspaso;*/
+
+/*insert into formaspagos(idformapago, formapago)
+select distinct cast (formapago as integer), formapago2
+from traspaso;*/
+
+insert into tiposimpuestos(impuesto)
+select distinct tipoimpuesto
+from traspaso;
+
+insert into tiposmonedas(codigomoneda, nombremoneda)
+select distinct monedaitem,  tipomoneda
+from traspaso
