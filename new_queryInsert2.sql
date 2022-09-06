@@ -71,7 +71,7 @@ select distinct trim(cast(case
     when traspaso.paisproveedor = 'Chile' then 'CL'
     when traspaso.paisproveedor = 'Polonia' then 'PL'
     when traspaso.paisproveedor = 'Austria' then 'AT'
-    when traspaso.paisproveedor = 'Canadá' then 'CA'
+    when traspaso.paisproveedor = 'Canad ' then 'CA'
     else 'NA' end as varchar(5))), cast(case
         when traspaso.paisproveedor = '' then 'NA'
         when traspaso.paisproveedor = 'CL' then 'NA'
