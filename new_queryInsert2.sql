@@ -51,11 +51,33 @@ insert into sectores (sector)
 select distinct sector from traspaso;
 
 -- Paises --
-select distinct pais from traspaso
-where pais is not null and trim(pais) <>''
-union
-Select distinct  paisproveedor from traspaso
-where paisproveedor is not null and trim(paisproveedor) <>'';
+insert into paises(codigopais, pais)
+select distinct trim(cast(case
+    when traspaso.paisproveedor = 'NA' then 'NA'
+    when traspaso.paisproveedor = 'Francia' then 'FR'
+    when traspaso.paisproveedor = 'Alemania' then 'DE'
+    when traspaso.paisproveedor = 'Colombia' then 'CO'
+    when traspaso.paisproveedor = 'Irlandia' then 'IE'
+    when traspaso.paisproveedor = 'Bélgica' then 'BE'
+    when traspaso.paisproveedor = 'República Dominicana' then 'DO'
+    when traspaso.paisproveedor = 'Argentina' then 'AR'
+    when traspaso.paisproveedor = 'Cuba' then 'CU'
+    when traspaso.paisproveedor = 'España' then 'ES'
+    when traspaso.paisproveedor = 'Estados Unidos' then 'US'
+    when traspaso.paisproveedor = 'Venezuela' then 'VE'
+    when traspaso.paisproveedor = 'Reino Unido' then 'UK'
+    when traspaso.paisproveedor = 'Eslovaquia' then 'SK'
+    when traspaso.paisproveedor = 'India' then 'IN'
+    when traspaso.paisproveedor = 'Chile' then 'CL'
+    when traspaso.paisproveedor = 'Polonia' then 'PL'
+    when traspaso.paisproveedor = 'Austria' then 'AT'
+    when traspaso.paisproveedor = 'Canadá' then 'CA'
+    else 'NA' end as varchar(5))), cast(case
+        when traspaso.paisproveedor = '' then 'NA'
+        when traspaso.paisproveedor = 'CL' then 'NA'
+        else traspaso.paisproveedor end as varchar(100))
+from traspaso
+where traspaso.paisproveedor is not null;
 
 -- ActividadesProveedores --
 insert into actividadesproveedores(actividadproveedor)
