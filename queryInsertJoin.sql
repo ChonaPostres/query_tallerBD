@@ -38,3 +38,68 @@ insert into regiones (idregion, region, pais) values (19, 'Extranjero', 'US');
 insert into regiones (idregion, region, pais) values (20, 'NA', 'NA');
 insert into regiones (idregion, region, pais) values (21, '13', 'NA');
 --delete from regiones;
+
+/*
+update traspaso set regionproveedor = 'Región Aysén del General Carlos Ibáñez del Campo'
+where regionproveedor = 'Regi¢n Aysn del General Carlos Ib ¤ez del Campo';
+
+update traspaso set regionproveedor = 'Región Metropolitana de Santiago'
+where regionproveedor = 'Regi¢n Metropolitana de Santiago';
+
+update traspaso set regionproveedor = 'Región del Ñuble'
+where regionproveedor = 'Regi¢n del ¥uble';
+
+update traspaso set regionproveedor = 'Región de Tarapacá'
+where regionproveedor = 'RRegi¢n de Tarapac   ';
+
+update traspaso set regionproveedor = 'Región de la Araucanía'
+where regionproveedor = 'Regi¢n de la Araucan¡a ';
+
+update traspaso set regionproveedor = 'Región de Antofagasta'
+where regionproveedor = 'Regi¢n de Antofagasta ';
+
+update traspaso set regionproveedor = 'Región del Biobío'
+where regionproveedor = 'Regi¢n del Biob¡o ';
+
+update traspaso set regionproveedor = 'Región de Valparaíso'
+where regionproveedor = 'Regi¢n de Valpara¡so ';
+
+update traspaso set regionproveedor = 'Región del Maule'
+where regionproveedor = 'Regi¢n del Maule ';
+
+update traspaso set regionproveedor = ''
+where regionproveedor = '';
+
+update traspaso set regionproveedor = ''
+where regionproveedor = '';
+
+update traspaso set regionproveedor = ''
+where regionproveedor = '';
+
+update traspaso set regionproveedor = ''
+where regionproveedor = '';
+
+update traspaso set regionproveedor = ''
+where regionproveedor = '';
+
+update traspaso set regionproveedor = ''
+where regionproveedor = '';
+
+update traspaso set regionproveedor = ''
+where regionproveedor = '';
+
+update traspaso set regionproveedor = ''
+where regionproveedor = '';
+
+update traspaso set regionproveedor = ''
+where regionproveedor = '';
+
+update traspaso set regionproveedor = ''
+where regionproveedor = '';
+
+update traspaso set regionproveedor = ''
+where regionproveedor = '';
+
+update traspaso set regionproveedor = ''
+where regionproveedor = '';
+*/
