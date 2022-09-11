@@ -39,9 +39,33 @@ insert into regiones (idregion, region, pais) values (20, 'NA', 'NA');
 insert into regiones (idregion, region, pais) values (21, '13', 'NA');
 --delete from regiones;
 
+--Ciudades--
 insert into ciudades(ciudad, region)
 select distinct traspaso.ciudadunidadcompra, regiones.idregion
 from traspaso
 join regiones
 on (traspaso.regionunidadcompra = regiones.region);
 --delete from ciudades;
+
+--Proveedores--
+-- no funciona por que en traspaso.promediocalificacion::numeric no funciona el casteo debido a que los numeros estan con ','
+/*insert into proveedores(codigoproveedor, nombreproveedor, comuna, promedioevalaucion, cantidadevalaucion)
+select distinct traspaso.codigoproveedor::integer, traspaso.nombreproveedor, ciudades.idciudad, traspaso.promediocalificacion::numeric, traspaso.cantidadevaluacion::numeric
+from traspaso
+join ciudades
+on (traspaso.comunaproveedor = ciudades.ciudad);
+
+select promediocalificacion, cantidadevaluacion
+from traspaso
+where promediocalificacion like '%,%';*/
+
+
+--UnidadesCompras--
+-- no funciona por que una unidad compra puede tener mas de una ciudad
+/*insert into unidadescompras(codigounidadcompra, rutunidadcompra, unidadcompra, codigoorganismopublico, ciudad)
+select distinct traspaso.codigounidadcompra::integer, traspaso.rutunidadcompra, traspaso.unidadcompra, organismospublicos.codigoorganismopublico, ciudades.idciudad
+from traspaso
+join organismospublicos
+on (traspaso.codigoorganismopublico::integer = organismospublicos.codigoorganismopublico)
+join ciudades
+on (traspaso.ciudadunidadcompra = ciudades.ciudad)*/
