@@ -14,7 +14,7 @@ having count(regionproveedor) > 1;
 -- en region de Biobio (como Maule se creo hace poco)
 
 select distinct comunaproveedor, regionproveedor from traspaso
-    where comunaproveedor like 'Coihueco'
+    where comunaproveedor like 'Coihueco';
 
 -- Realizo el update de cada comuna a su region correspondiente
 -- (son solo 20 errores)    
@@ -72,7 +72,7 @@ group by ciudadunidadcompra
 having count(regionunidadcompra) > 1;
 
 select distinct ciudadunidadcompra, regionunidadcompra from traspaso
-    where ciudadunidadcompra like '%*%'
+    where ciudadunidadcompra like '%*%';
  
 
 update traspaso set regionunidadcompra = 'Región de Ñuble' 

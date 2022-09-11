@@ -6,7 +6,7 @@
 --         muchos a muchos entre proveedores y 
 --         actividadesproveedores
 alter table proveedores 
-   drop constraint proveedores_actividad_fkey;
+   drop constraint fk_proveedores_activiadad;
 alter table proveedores
    drop column actividad;
    
