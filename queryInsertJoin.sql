@@ -49,15 +49,15 @@ on (traspaso.regionunidadcompra = regiones.region);
 
 --Proveedores--
 -- no funciona por que en traspaso.promediocalificacion::numeric no funciona el casteo debido a que los numeros estan con ','
-/*insert into proveedores(codigoproveedor, nombreproveedor, comuna, promedioevalaucion, cantidadevalaucion)
-select distinct traspaso.codigoproveedor::integer, traspaso.nombreproveedor, ciudades.idciudad, traspaso.promediocalificacion::numeric, traspaso.cantidadevaluacion::numeric
+insert into proveedores(codigoproveedor, nombreproveedor, comuna, promedioevalaucion, cantidadevalaucion)
+select distinct traspaso.codigoproveedor::integer, traspaso.nombreproveedor, ciudades.idciudad, replace(promediocalificacion, ',','.')::numeric, traspaso.cantidadevaluacion::numeric
 from traspaso
 join ciudades
 on (traspaso.comunaproveedor = ciudades.ciudad);
 
-select promediocalificacion, cantidadevaluacion
-from traspaso
-where promediocalificacion like '%,%';*/
+--select promediocalificacion, cantidadevaluacion
+--from traspaso
+--where promediocalificacion like '%,%';
 
 
 --UnidadesCompras--
