@@ -54,18 +54,24 @@ select distinct traspaso.codigoproveedor::integer, traspaso.nombreproveedor, ciu
 from traspaso
 join ciudades
 on (traspaso.comunaproveedor = ciudades.ciudad);
-
---select promediocalificacion, cantidadevaluacion
---from traspaso
---where promediocalificacion like '%,%';
-
+--delete from proveedores;
 
 --UnidadesCompras--
--- no funciona por que una unidad compra puede tener mas de una ciudad
-/*insert into unidadescompras(codigounidadcompra, rutunidadcompra, unidadcompra, codigoorganismopublico, ciudad)
-select distinct traspaso.codigounidadcompra::integer, traspaso.rutunidadcompra, traspaso.unidadcompra, organismospublicos.codigoorganismopublico, ciudades.idciudad
-from traspaso
-join organismospublicos
-on (traspaso.codigoorganismopublico::integer = organismospublicos.codigoorganismopublico)
-join ciudades
-on (traspaso.ciudadunidadcompra = ciudades.ciudad)*/
+update traspaso set rutunidadcompra = '61.607.301-k'
+where codigounidadcompra = '61.607.301-k';
+
+drop table if exists tmp_unidadescompra;
+
+select distinct codigounidadcompra::integer, upper(rutunidadcompra) as rutunidadcompra, unidadcompra,codigoorganismopublico::integer,
+c.idciudad
+into tmp_unidadescompra
+from traspaso t
+join ciudades c on t.ciudadunidadcompra = c.ciudad;
+
+insert into unidadescompras (codigounidadcompra, rutunidadcompra,
+unidadcompra,codigoorganismopublico, ciudad)
+select codigounidadcompra, rutunidadcompra,
+max(unidadcompra), codigoorganismopublico, max(idciudad) as idciudad
+from tmp_unidadescompra
+group by codigounidadcompra, rutunidadcompra, codigoorganismopublico;
+--delete from unidadescompras;
