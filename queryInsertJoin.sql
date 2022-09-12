@@ -1,4 +1,4 @@
-
+/*
 --OrganismosPublicos--
 insert into organismospublicos(codigoorganismopublico, organismopublico, sector)
 select distinct traspaso.codigoorganismopublico::integer, traspaso.organismopublico, sectores.idsector
@@ -38,7 +38,7 @@ insert into regiones (idregion, region, pais) values (19, 'Extranjero', 'US');
 insert into regiones (idregion, region, pais) values (20, 'NA', 'NA');
 insert into regiones (idregion, region, pais) values (21, '13', 'NA');
 --delete from regiones;
-
+*/
 --Ciudades--
 insert into ciudades(ciudad, region)
 select distinct traspaso.ciudadunidadcompra, regiones.idregion
@@ -48,7 +48,7 @@ on (traspaso.regionunidadcompra = regiones.region);
 --delete from ciudades;
 
 --Proveedores--
--- no funciona por que un proveedor puede tener mas de una ciudad
+-- no funciona por que en traspaso.promediocalificacion::numeric no funciona el casteo debido a que los numeros estan con ','
 insert into proveedores(codigoproveedor, nombreproveedor, comuna, promedioevalaucion, cantidadevalaucion)
 select distinct traspaso.codigoproveedor::integer, traspaso.nombreproveedor, ciudades.idciudad, replace(promediocalificacion, ',','.')::numeric, traspaso.cantidadevaluacion::numeric
 from traspaso
@@ -75,3 +75,30 @@ max(unidadcompra), codigoorganismopublico, max(idciudad) as idciudad
 from tmp_unidadescompra
 group by codigounidadcompra, rutunidadcompra, codigoorganismopublico;
 --delete from unidadescompras;
+
+--Rubros--
+insert into rubros (rubro) 
+select DISTINCT rubron1 from traspaso;
+
+insert into rubros(rubro,rubropadre)
+select distinct traspaso.rubron2, rubros.id_rubro
+from traspaso
+join rubros
+on (traspaso.rubron1 = rubros.rubro);
+
+insert into rubros(rubro,rubropadre)
+select distinct traspaso.rubron3, rubros.id_rubro
+from traspaso
+join rubros
+on (traspaso.rubron2 = rubros.rubro);
+--delete from rubros;
+
+--Productos--
+--insert into productos(codigoproducto,rubro)
+--select distinct traspaso.codigoproductoonu :: bigint ,rubros.id_rubro
+--FROM traspaso
+--join rubros
+--on(traspaso.rubron3 = rubros.rubro)
+--where traspaso.rubron3 <> 'NA'
+--where traspaso.codigoproductoonu = '14111601'
+
