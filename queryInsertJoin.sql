@@ -48,7 +48,7 @@ on (traspaso.regionunidadcompra = regiones.region);
 --delete from ciudades;
 
 --Proveedores--
--- no funciona por que en traspaso.promediocalificacion::numeric no funciona el casteo debido a que los numeros estan con ','
+-- no funciona por que un proveedor puede tener mas de una ciudad
 insert into proveedores(codigoproveedor, nombreproveedor, comuna, promedioevalaucion, cantidadevalaucion)
 select distinct traspaso.codigoproveedor::integer, traspaso.nombreproveedor, ciudades.idciudad, replace(promediocalificacion, ',','.')::numeric, traspaso.cantidadevaluacion::numeric
 from traspaso

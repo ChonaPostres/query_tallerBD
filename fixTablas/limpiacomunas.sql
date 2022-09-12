@@ -118,5 +118,8 @@ update traspaso set regionunidadcompra = 'Región de Ñuble'
 update traspaso set regionunidadcompra = 'Región de Ñuble' 
      where ciudadunidadcompra like '%iqu%n'; 
 update traspaso set regionunidadcompra = 'Región de Ñuble' 
-     where ciudadunidadcompra like 'San Nicol%s'; 
+     where ciudadunidadcompra like 'San Nicol%s';
+
+drop table tmpcomunas; 
+drop table tmpcomunas2;
    
