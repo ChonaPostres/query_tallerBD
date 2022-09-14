@@ -16,7 +16,7 @@ from traspaso;
 insert into tiposimpuestos(impuesto)
 select distinct tipoimpuesto from traspaso;
 
--- TipoDespacho --
+-- TiposDespachos --
 insert into tiposdespachos(idtipodespacho, tipodespacho)
 select distinct cast(tipodespacho as integer), 'tipodespacho'
 from traspaso;
