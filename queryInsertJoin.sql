@@ -209,6 +209,8 @@ on (proveedores.nombreproveedor = traspaso.nombreproveedor)
 group by codigosucursal, rutsucursal, proveedores.codigoproveedor;
 --delete from sucursales;
 
+alter table productos alter column nombreproducto drop not null
+
 --Productos--
 --insert into productos(codigoproducto,rubro)
 --select distinct traspaso.codigoproductoonu :: bigint ,rubros.id_rubro
