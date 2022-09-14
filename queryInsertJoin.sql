@@ -189,6 +189,17 @@ group by codigoproveedor, nombreproveedor, promediocalificacion, cantidadevaluac
 drop table tmp_proveedores;
 --delete from proveedores;
 
+--proveedores_actividadesproveedores--
+--Relacion proveedores con actividades muchos a muchos
+insert into proveedores_actividadesproveedores(codigoproveedor, idactividadproveedor)
+select distinct proveedores.codigoproveedor, actividadesproveedores.idactividadproveedor
+from traspaso
+join actividadesproveedores
+on (traspaso.actividadproveedor = actividadesproveedores.actividadproveedor)
+join proveedores
+on (proveedores.codigoproveedor = traspaso.codigoproveedor::integer);
+--delete from proveedores_actividadesproveedores;
+
 --Sucursales--
 insert into sucursales(codigosucursal, rutsucursal, sucursal, proveedor)
 select distinct codigosucursal::integer, rutsucursal, max(sucursal) as sucursal, proveedores.codigoproveedor 
