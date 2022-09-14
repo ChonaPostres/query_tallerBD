@@ -209,14 +209,18 @@ on (proveedores.nombreproveedor = traspaso.nombreproveedor)
 group by codigosucursal, rutsucursal, proveedores.codigoproveedor;
 --delete from sucursales;
 
-alter table productos alter column nombreproducto drop not null
-
 --Productos--
---insert into productos(codigoproducto,rubro)
---select distinct traspaso.codigoproductoonu :: bigint ,rubros.id_rubro
---FROM traspaso
---join rubros
---on(traspaso.rubron3 = rubros.rubro)
---where traspaso.rubron3 <> 'NA'
---where traspaso.codigoproductoonu = '14111601'
+alter table productos alter column nombreproducto drop not null;
+
+select distinct traspaso.codigoproductoonu :: bigint ,traspaso.nombreproductogenerico, rubros.id_rubro
+into tmp_productos
+from traspaso
+join rubros on traspaso.rubron3 = rubros.rubro
+where traspaso.rubron3 <> 'NA';
+
+insert into productos(codigoproducto,nombreproducto,rubro)
+select tmp_productos.codigoproductoonu,max(tmp_productos.nombreproductogenerico),max(tmp_productos.id_rubro) as rubro
+from tmp_productos
+group by tmp_productos.codigoproductoonu;
+--delete from productos;
 
