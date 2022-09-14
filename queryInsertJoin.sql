@@ -266,3 +266,30 @@ join formaspagos
 on (formaspagos.idformapago = t.formapago::int)
 where t.codigolicitacion <> 'null';
 --delete from licitaciones;
+
+--ItemesLicitaciones--
+insert into itemeslicitaciones(iditem,idlicitacion,codigocategoria,
+							   codigoproducto,especificacioncomprados,especificacionproveedos,
+							   cantidad,unidadmedida,monedaitem,precioneto,
+							   totalcargo,totaldescuentos,totalimpuestos,
+							   totallineaneto,formapago)
+							   
+select distinct t.iditem::bigint,licitaciones.idlicitacion::bigint,
+				categorias.codigocategoria,productos.codigoproducto,
+				t.especificacioncomprador,t.especificacionproveedor,
+				round(replace(t.cantidad, ',','.')::numeric)::integer, unidadesmedidas.codigounidadmedida,
+				tiposmonedas.codigomoneda,
+				case when replace(t.precioneto, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric else replace(t.precioneto, ',','.')::numeric end as precioneto,
+				case when replace(t.totalcargos, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric else replace(t.totalcargos, ',','.')::numeric end as totalcargos,
+				t.totaldescuentos::integer,t.totalimpuestos::integer,
+				case when replace(t.totallineaneto, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric else replace(t.totallineaneto, ',','.')::numeric end as totallineaneto,
+				formaspagos.idformapago::integer
+
+from traspaso t
+join licitaciones on t.idt::bigint = licitaciones.idlicitacion
+join categorias on t.codigocategoria::bigint = categorias.codigocategoria
+join productos on t.codigoproductoonu::bigint = productos.codigoproducto
+join unidadesmedidas on t.unidadmedida = unidadesmedidas.unidadmedida
+join tiposmonedas on t.monedaitem = tiposmonedas.codigomoneda
+join formaspagos on t.formapago::integer = formaspagos.idformapago
+--delete from itemeslicitaciones;
