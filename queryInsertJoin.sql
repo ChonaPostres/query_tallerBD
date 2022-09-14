@@ -189,6 +189,15 @@ group by codigoproveedor, nombreproveedor, promediocalificacion, cantidadevaluac
 drop table tmp_proveedores;
 --delete from proveedores;
 
+--Sucursales--
+insert into sucursales(codigosucursal, rutsucursal, sucursal, proveedor)
+select distinct codigosucursal::integer, rutsucursal, max(sucursal) as sucursal, proveedores.codigoproveedor 
+from traspaso
+join proveedores
+on (proveedores.nombreproveedor = traspaso.nombreproveedor)
+group by codigosucursal, rutsucursal, proveedores.codigoproveedor;
+--delete from sucursales;
+
 --Productos--
 --insert into productos(codigoproducto,rubro)
 --select distinct traspaso.codigoproductoonu :: bigint ,rubros.id_rubro
