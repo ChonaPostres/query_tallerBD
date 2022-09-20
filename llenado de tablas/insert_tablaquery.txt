@@ -1,5 +1,339 @@
+----------------------------------------------------------Parte 1----------------------------------------------------------
+-------Tipos-------
+insert into tipos(tipo,codigoabreviatura,descripcion,codigotipo)
+select distinct tipo, codigoabreviatura, descripciontipooc, codigotipo::integer
+from traspaso;
+--delete from tipos;
 
---OrganismosPublicos--
+-------EstadosCompras-------
+insert into estadoscompras(codigoestado,estado)
+select distinct codigoestado::integer,estado from traspaso;
+--delete from estadoscompras;
+
+-------EstadosProveedores-------
+insert into estadosproveedores(codigoestado, estado)
+select distinct cast(codigoestadorpoveedor as integer), estadoproveedor
+from traspaso;
+--delete from estadosproveedores;
+
+-------TiposImpuestos-------
+insert into tiposimpuestos(impuesto)
+select distinct tipoimpuesto from traspaso;
+--delete from tiposimpuestos;
+
+-------TiposDespachos-------
+insert into tiposdespachos(idtipodespacho, tipodespacho)
+select distinct cast(tipodespacho as integer), 'tipodespacho'
+from traspaso;
+--delete from tiposdespachos;
+
+-------TiposMonedas-------
+insert into tiposmonedas(codigomoneda,nombremoneda)
+select distinct tipomoneda, 'x' from traspaso;
+update tiposmonedas set nombremoneda = 'Pesos Chilenos'
+where codigomoneda = 'CLP';
+update tiposmonedas set nombremoneda = 'Unidad Tributaria Mensual'
+where codigomoneda = 'UTM';
+update tiposmonedas set nombremoneda = 'Euros'
+where codigomoneda = 'EUR';
+update tiposmonedas set nombremoneda = 'Dolar Norteamericano'
+where codigomoneda = 'USD';
+update tiposmonedas set nombremoneda = 'Unidad de Fomento'
+where codigomoneda = 'CLF';
+--delete from tiposmonedas;
+
+-------UnidadesMedidas-------
+insert into unidadesmedidas(unidadmedida)
+select distinct unidadmedida from traspaso;
+--delete from unidadesmedidas;
+
+-------FormasPagos-------
+insert into formaspagos(idformapago,formapago)
+select distinct formapago::int, formapago2 from traspaso
+where formapago <> 'NA' and (formapago<>'39' or formapago2<>'NA');
+--delete from formaspagos;
+
+-------Sectores-------
+insert into sectores (sector)
+select distinct sector from traspaso;
+--delete from sectores;
+
+-------Paises-------
+insert into paises(codigopais, pais)
+select distinct trim(cast(case
+    when traspaso.paisproveedor = 'NA' then 'NA'
+    when traspaso.paisproveedor = 'Francia' then 'FR'
+    when traspaso.paisproveedor = 'Alemania' then 'DE'
+    when traspaso.paisproveedor = 'Colombia' then 'CO'
+    when traspaso.paisproveedor = 'Irlandia' then 'IE'
+    when traspaso.paisproveedor = 'Bélgica' then 'BE'
+    when traspaso.paisproveedor = 'República Dominicana' then 'DO'
+    when traspaso.paisproveedor = 'Argentina' then 'AR'
+    when traspaso.paisproveedor = 'Cuba' then 'CU'
+    when traspaso.paisproveedor = 'España' then 'ES'
+    when traspaso.paisproveedor = 'Estados Unidos' then 'US'
+    when traspaso.paisproveedor = 'Venezuela' then 'VE'
+    when traspaso.paisproveedor = 'Reino Unido' then 'UK'
+    when traspaso.paisproveedor = 'Eslovaquia' then 'SK'
+    when traspaso.paisproveedor = 'India' then 'IN'
+    when traspaso.paisproveedor = 'Chile' then 'CL'
+    when traspaso.paisproveedor = 'Polonia' then 'PL'
+    when traspaso.paisproveedor = 'Austria' then 'AT'
+    when traspaso.paisproveedor = 'Canad ' then 'CA'
+    else 'NA' end as varchar(5))), cast(case
+        when traspaso.paisproveedor = '' then 'NA'
+        when traspaso.paisproveedor = 'CL' then 'NA'
+        else traspaso.paisproveedor end as varchar(100))
+from traspaso
+where traspaso.paisproveedor is not null;
+--delete from paises;
+
+-------ActividadesProveedores-------
+insert into actividadesproveedores(actividadproveedor)
+select distinct actividadproveedor
+from traspaso;
+--delete from actividadesproveedores;
+
+-------Categorias-------
+insert into categorias (codigocategoria,categoria)
+select distinct codigocategoria::bigint, max(categoria) 
+from traspaso
+where codigocategoria <> 'NA'
+group by codigocategoria;
+--delete from categorias;
+
+----------------------------------------------------------Parte 2----------------------------------------------------------
+----Fix limpiar comunas-----
+
+-- Creo tabla tamporal con comuna y region del proveedor
+
+select distinct comunaproveedor, regionproveedor into tmpcomunas from traspaso;
+
+-- De la tabla temporal listo las comunas que están en mas de 1 region
+
+select comunaproveedor, count(regionproveedor) from tmpcomunas 
+group by comunaproveedor
+having count(regionproveedor) > 1;
+
+-- Por cada comuna veo a que region esta asociada y reviso la correcta
+-- La mayoria de los casos es por la region del Maule, aun siguen
+-- en region de Biobio (como Maule se creo hace poco)
+
+select distinct comunaproveedor, regionproveedor from traspaso
+    where comunaproveedor like 'Coihueco';
+
+-- Realizo el update de cada comuna a su region correspondiente
+-- (son solo 20 errores)    
+
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'Chill%n';
+update traspaso set regionproveedor = 'Región Metropolitana de Santiago' 
+     where comunaproveedor like 'Santiago';
+update traspaso set regionproveedor = 'Región de Valparaíso' 
+     where comunaproveedor like 'La Ligua';
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'Yungay';  
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'San Carlos'; 
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'Pinto'; 
+update traspaso set regionproveedor = 'Región de Arica y Parinacota' 
+     where comunaproveedor like 'Arica'; 
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'Ninhue'; 
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'Quirihue';  
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'Coelemu';  
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'Bulnes';
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'Quill%n';  
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'Chill%Viejo';   
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'Ranquil';  
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'San Fabi%n';  
+update traspaso set regionproveedor = 'Región Metropolitana de Santiago' 
+     where comunaproveedor like 'Las Condes';  
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'San Ignacio';
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'Portezuelo'; 
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'El Carmen';  
+update traspaso set regionproveedor = 'Región de Ñuble' 
+     where comunaproveedor like 'Coihueco';  
+
+
+
+
+-- Lo mismo anterior para unidad de compra
+
+select distinct ciudadunidadcompra, regionunidadcompra into tmpcomunas2 from traspaso;
+
+select ciudadunidadcompra, count(regionunidadcompra) from tmpcomunas2 
+group by ciudadunidadcompra
+having count(regionunidadcompra) > 1;
+
+select distinct ciudadunidadcompra, regionunidadcompra from traspaso
+    where ciudadunidadcompra like '%*%';
+ 
+
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'Chill%n Viejo';
+update traspaso set regionunidadcompra = 'Región Metropolitana de Santiago' 
+     where ciudadunidadcompra like 'Santiago';
+update traspaso set regionunidadcompra = 'Región de Valparaíso' 
+     where ciudadunidadcompra like 'La Ligua';
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'Yungay';  
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'San Carlos'; 
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'Pinto'; 
+update traspaso set regionunidadcompra = 'Región de Arica y Parinacota' 
+     where ciudadunidadcompra like 'Arica'; 
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'Ninhue'; 
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'Quirihue';  
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'Coelemu';  
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'Bulnes';
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'Quill%n';  
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'Chilla%Viejo';   
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'Ranquil';  
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'San Fabi%n';  
+update traspaso set regionunidadcompra = 'Región Metropolitana de Santiago' 
+     where ciudadunidadcompra like 'Las Condes';  
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'San Ignacio';
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'Portezuelo'; 
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'El Carmen';  
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'Coihueco';   
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like '%iqu%n'; 
+update traspaso set regionunidadcompra = 'Región de Ñuble' 
+     where ciudadunidadcompra like 'San Nicol%s';
+
+drop table tmpcomunas; 
+drop table tmpcomunas2;
+
+------Fix limpia proveedores con nombres distintos------
+
+----  proveedores  ----
+-- 1.- creo una tabla temporal con proveedores y rut 
+select distinct codigoproveedor, nombreproveedor
+into tmp_proveedores1
+from traspaso;
+
+-- 2.- creo otra tabla temporal desde la anterior
+--     que tiene proveedores con rut y nombre inconsitente.
+--     Uso un max para dejar un solo nombre por rut
+
+select codigoproveedor, max(nombreproveedor) as nombremax
+into tmp_proveedores2
+from tmp_proveedores1
+group by codigoproveedor
+having count(nombreproveedor)>1;
+
+-- 3.- uso los datos de la segunda temporal para modificar
+--     los datos de la tabla traspaso
+
+update traspaso as t set nombreproveedor = nombremax
+from tmp_proveedores2 as p
+where t.codigoproveedor = p.codigoproveedor;
+
+-- 4.- Elimino las tablas temporales
+drop table tmp_proveedores1;
+drop table tmp_proveedores2;
+
+------Fix modificar tabla proveedores------
+-- PRoveedores actividad proveedor ---
+--
+--   OBS: Un proveedor PODRIA TENER MAS DE UNA ACTIVIDAD
+--        lo cual seria valido. Por lo anterior, nuestro
+--         modelo deberia cambiar a una relacion
+--         muchos a muchos entre proveedores y 
+--         actividadesproveedores
+alter table proveedores 
+   drop constraint fk_proveedores_activiadad;
+alter table proveedores
+   drop column actividad;
+   
+create table proveedores_actividadesproveedores (
+codigoproveedor integer not null,
+idactividadproveedor integer not null,
+constraint pk_proveedores_actividadesproveedores
+     primary key (codigoproveedor,idactividadproveedor),
+constraint fk_proveedores_actividadesproveedores_actividadesproveedores 
+     foreign key (idactividadproveedor)
+                  references actividadesproveedores(idactividadproveedor),
+constraint fk_proveedores_actividadesproveedores_proveedores 
+     foreign key (codigoproveedor) references proveedores(codigoproveedor)
+ );
+
+------Fix Productos claves duplicadas------
+
+-- Obtengo los distintos productos y codigos
+-- en tabla tmp_productos
+
+select distinct codigoproductoonu,nombreproductogenerico
+into tmp_productos
+from traspaso;
+
+-- Obtengo los productos que tienen codigos repetidos
+-- En tabla tmp_prodrepetidos con un campo nuevo
+-- para agregar nuevo codigo
+
+select distinct codigoproductoonu, nombreproductogenerico,0 as nuevocodigo
+into tmp_prodrepetidos
+from traspaso tr
+where exists 
+       (select * 
+        from tmp_productos tp
+        where tp.nombreproductogenerico <> tr.nombreproductogenerico
+        and tp.codigoproductoonu =  tr.codigoproductoonu  );
+        
+-- creo sequence para obtener los valores de la clave
+-- usare el 990090000 como valor inicial
+
+create sequence sec_genera_claveprod
+    start 990900000
+    increment 1;
+
+-- Agrego codigo nuevo desde la secuencia 
+
+update tmp_prodrepetidos
+set nuevocodigo = nextval('sec_genera_claveprod');
+
+-- Modifico los datos de la tabla traspaso con los
+-- codigos nuevos
+
+update traspaso tr set codigoproductoonu = tp.nuevocodigo
+from tmp_prodrepetidos tp
+where tp.nombreproductogenerico = tr.nombreproductogenerico
+  and tp.codigoproductoonu =  tr.codigoproductoonu ;
+
+
+ -- elimino tablas temp
+ 
+ drop table tmp_productos;
+ drop table tmp_prodrepetidos;
+ drop sequence sec_genera_claveprod;
+ 
+
+-------OrganismosPublicos-------
 insert into organismospublicos(codigoorganismopublico, organismopublico, sector)
 select distinct traspaso.codigoorganismopublico::integer, traspaso.organismopublico, sectores.idsector
 from traspaso
@@ -7,7 +341,7 @@ join sectores
 on (traspaso.sector = sectores.sector);
 --delete from organismospublicos;
 
---Procedencias--
+-------Procedencias-------
 insert into procedencias(procedencia, tipo)
 select distinct traspaso.procedencia, tipos.tipo
 from traspaso
@@ -15,7 +349,7 @@ join tipos
 on (traspaso.tipo = tipos.tipo);
 --delete from procedencias;
 
---Regiones--
+-------Regiones-------
 -- Limpia los datos de regiones
 select distinct regionunidadcompra from traspaso
 union
@@ -121,7 +455,7 @@ update traspaso set regionproveedor = 'Región de Ñuble'
 where upper(regionproveedor) like '%UBLE%';
 --delete from regiones;
 
---Ciudades--
+-------Ciudades-------
 insert into ciudades(ciudad, region)
 select distinct traspaso.ciudadunidadcompra, regiones.idregion
 from traspaso
@@ -129,8 +463,7 @@ join regiones
 on (traspaso.regionunidadcompra = regiones.region);
 --delete from ciudades;
 
---Proveedores--
--- no funciona por que en traspaso.promediocalificacion::numeric no funciona el casteo debido a que los numeros estan con ','
+-------Proveedores-------
 insert into proveedores(codigoproveedor, nombreproveedor, comuna, promedioevalaucion, cantidadevalaucion)
 select distinct traspaso.codigoproveedor::integer, traspaso.nombreproveedor, ciudades.idciudad, replace(promediocalificacion, ',','.')::numeric, traspaso.cantidadevaluacion::numeric
 from traspaso
@@ -138,7 +471,7 @@ join ciudades
 on (traspaso.comunaproveedor = ciudades.ciudad);
 --delete from proveedores;
 
---UnidadesCompras--
+-------UnidadesCompras-------
 update traspaso set rutunidadcompra = '61.607.301-k'
 where codigounidadcompra = '61.607.301-k';
 
@@ -157,7 +490,7 @@ group by codigounidadcompra, rutunidadcompra, codigoorganismopublico;
 drop table if exists tmp_unidadescompra;
 --delete from unidadescompras;
 
---Rubros--
+-------Rubros-------
 insert into rubros (rubro) 
 select DISTINCT rubron1 from traspaso;
 
@@ -174,7 +507,7 @@ join rubros
 on (traspaso.rubron2 = rubros.rubro);
 --delete from rubros;
 
---Proveedores--
+-------Proveedores-------
 select distinct traspaso.codigoproveedor::integer, traspaso.nombreproveedor, ciudades.idciudad, replace(promediocalificacion, ',','.')::numeric as promediocalificacion, traspaso.cantidadevaluacion::numeric
 into tmp_proveedores
 from traspaso
@@ -189,8 +522,8 @@ group by codigoproveedor, nombreproveedor, promediocalificacion, cantidadevaluac
 drop table tmp_proveedores;
 --delete from proveedores;
 
---proveedores_actividadesproveedores--
---Relacion proveedores con actividades muchos a muchos
+-------proveedores_actividadesproveedores-------
+--Relacion proveedores con actividades mucho a muchos
 insert into proveedores_actividadesproveedores(codigoproveedor, idactividadproveedor)
 select distinct proveedores.codigoproveedor, actividadesproveedores.idactividadproveedor
 from traspaso
@@ -200,7 +533,7 @@ join proveedores
 on (proveedores.codigoproveedor = traspaso.codigoproveedor::integer);
 --delete from proveedores_actividadesproveedores;
 
---Sucursales--
+-------Sucursales-------
 insert into sucursales(codigosucursal, rutsucursal, sucursal, proveedor)
 select distinct codigosucursal::integer, rutsucursal, max(sucursal) as sucursal, proveedores.codigoproveedor 
 from traspaso
@@ -209,7 +542,7 @@ on (proveedores.nombreproveedor = traspaso.nombreproveedor)
 group by codigosucursal, rutsucursal, proveedores.codigoproveedor;
 --delete from sucursales;
 
---Productos--
+-------Productos-------
 alter table productos alter column nombreproducto drop not null;
 
 select distinct traspaso.codigoproductoonu :: bigint ,traspaso.nombreproductogenerico, rubros.id_rubro
@@ -224,7 +557,7 @@ from tmp_productos
 group by tmp_productos.codigoproductoonu;
 --delete from productos;
 
---Licitaciones--
+-------Licitaciones-------
 insert into licitaciones(idlicitacion,codlicitacion,link1,nombre,descripcion,procedencia,estratodirecto,escompraagil,codigotipo,idplandecompra,codigoestado,codigoestadoproveedor,fechacreacion,fechaenvio,fechasolicitudcancelacion,fechaultimamodificacion,fechaaceptacion,fechacancelacion,tieneitems,montototal,tipomoneda,montototalpesos,impuestos,tipoimpuesto,descuento,cargos,totalnetooc,codigounidadcompra,codigosucursal,financiamiento,porcentajeiva,pais,tipodespacho,formapago,codigolicitacion)
 select distinct t.idt::bigint, t.codigo, t.linkt, t.nombre, t.descripcion, procedencias.idprocedencia, 
 t.estratodirecto, t.escompraagil, tipos.codigotipo, t.idplandecompra, 
@@ -267,7 +600,7 @@ on (formaspagos.idformapago = t.formapago::int)
 where t.codigolicitacion <> 'null';
 --delete from licitaciones;
 
---ItemesLicitaciones--
+-------ItemesLicitaciones-------
 insert into itemeslicitaciones(iditem,idlicitacion,codigocategoria,
 							   codigoproducto,especificacioncomprados,especificacionproveedos,
 							   cantidad,unidadmedida,monedaitem,precioneto,
