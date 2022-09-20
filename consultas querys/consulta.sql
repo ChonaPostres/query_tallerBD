@@ -13,7 +13,10 @@ and rutsucursal not like '%.___.___-8'
 and rutsucursal not like '%.___.___-9';
 
 -------Parte 4-------
-select codlicitacion, link1, descripcion, regiones.region from licitaciones
+select licitaciones.codlicitacion, licitaciones.link1, licitaciones.descripcion--, regiones.region, sectores.sector, rubros.rubro, rubros2.rubro as rubro2, rubros3.rubro as rubro3, licitaciones.fechaultimamodificacion 
+from itemeslicitaciones
+join licitaciones
+on (licitaciones.idlicitacion = itemeslicitaciones.idlicitacion)
 join sucursales
 on (licitaciones.codigosucursal = sucursales.codigosucursal)
 join proveedores
@@ -22,5 +25,23 @@ join ciudades
 on (proveedores.comuna = ciudades.idciudad)
 join regiones
 on (ciudades.region = regiones.idregion)
-where regiones.region = 'Región de Valparaíso'
+join unidadescompras 
+on (licitaciones.codigounidadcompra = unidadescompras.codigounidadcompra)
+join organismospublicos 
+on (organismospublicos.codigoorganismopublico = unidadescompras.codigoorganismopublico)
+join sectores 
+on (sectores.idsector = organismospublicos.sector)
+join productos 
+on (productos.codigoproducto = itemeslicitaciones.codigoproducto)
+join rubros 
+on (rubros.id_rubro = productos.rubro)
+join rubros as rubros2 
+on (rubros2.id_rubro = rubros.rubropadre)
+join rubros as rubros3 
+on (rubros3.id_rubro = rubros2.rubropadre)
+where regiones.region = 'Región de Valparaíso' 
+and sectores.sector = 'Municipalidades'
+and (rubros.rubro = 'Productos de papel' or rubros2.rubro = 'Productos de papel' or rubros3.rubro = 'Productos de papel')
+and licitaciones.fechaultimamodificacion >= date '20-03-2019' 
+and licitaciones.fechaultimamodificacion <= date '30-03-2019'
 
