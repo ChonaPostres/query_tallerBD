@@ -463,14 +463,6 @@ join regiones
 on (traspaso.regionunidadcompra = regiones.region);
 --delete from ciudades;
 
--------Proveedores-------
-insert into proveedores(codigoproveedor, nombreproveedor, comuna, promedioevalaucion, cantidadevalaucion)
-select distinct traspaso.codigoproveedor::integer, traspaso.nombreproveedor, ciudades.idciudad, replace(promediocalificacion, ',','.')::numeric, traspaso.cantidadevaluacion::numeric
-from traspaso
-join ciudades
-on (traspaso.comunaproveedor = ciudades.ciudad);
---delete from proveedores;
-
 -------UnidadesCompras-------
 update traspaso set rutunidadcompra = '61.607.301-k'
 where codigounidadcompra = '61.607.301-k';
