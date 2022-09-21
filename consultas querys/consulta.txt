@@ -28,7 +28,7 @@ and rutsucursal not like '%.___.___-8'
 and rutsucursal not like '%.___.___-9';
 
 -------Parte 4-------
-select licitaciones.codlicitacion, licitaciones.link1, licitaciones.descripcion, regiones.region, sectores.sector, rubros.rubro, rubros2.rubro as rubro2, licitaciones.fechaultimamodificacion 
+select licitaciones.codlicitacion, licitaciones.link1, licitaciones.descripcion--, regiones.region, sectores.sector, rubros.rubro, rubros2.rubro as rubro2, licitaciones.fechaultimamodificacion 
 from itemeslicitaciones
 join licitaciones
 on (licitaciones.idlicitacion = itemeslicitaciones.idlicitacion)
