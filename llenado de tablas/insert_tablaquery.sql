@@ -575,7 +575,7 @@ case when t.fechacancelacion = 'NA' then TO_DATE('01/01/1900', 'dd/mm/yyyy') els
 t.tieneitems::integer, 
 round(replace(t.montototal, ',','.')::numeric)::bigint, 
 tiposmonedas.codigomoneda, 
-case when replace(t.montototalpesos, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric else replace(t.montototalpesos, ',','.')::numeric end as montototalpesos, 
+case when replace(t.montototalpesos, ',','.')::numeric > 9999999.999::numeric(10,3) then 9999999.999::numeric else replace(t.montototalpesos, ',','.')::numeric end as montototalpesos, 
 round(replace(t.impuestos, ',','.')::numeric)::bigint,
 tiposimpuestos.tipoimpuesto, 
 round(replace(t.descuentos, ',','.')::numeric)::bigint,
@@ -635,11 +635,11 @@ t.especificacionproveedor,
 round(replace(t.cantidad, ',','.')::numeric)::integer, 
 unidadesmedidas.codigounidadmedida,
 tiposmonedas.codigomoneda,
-case when replace(t.precioneto, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric else replace(t.precioneto, ',','.')::numeric end as precioneto,
-case when replace(t.totalcargos, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric else replace(t.totalcargos, ',','.')::numeric end as totalcargos,
+case when replace(t.precioneto, ',','.')::numeric > 9999999.999::numeric(10,3) then 9999999.999::numeric else replace(t.precioneto, ',','.')::numeric end as precioneto,
+case when replace(t.totalcargos, ',','.')::numeric > 9999999.999::numeric(10,3) then 9999999.999::numeric else replace(t.totalcargos, ',','.')::numeric end as totalcargos,
 round(replace(t.totaldescuentos, ',','.')::numeric)::integer, 
 t.totalimpuestos::integer,
-case when replace(t.totallineaneto, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric when replace(t.totallineaneto, ',','.')::numeric < 0 then 0 else replace(t.totallineaneto, ',','.')::numeric end as totallineaneto,
+case when replace(t.totallineaneto, ',','.')::numeric > 9999999.999::numeric(10,3) then 9999999.999::numeric when replace(t.totallineaneto, ',','.')::numeric < 0 then 0 else replace(t.totallineaneto, ',','.')::numeric end as totallineaneto,
 formaspagos.idformapago::integer
 
 from traspaso t
@@ -649,5 +649,5 @@ join productos on t.codigoproductoonu::bigint = productos.codigoproducto
 join unidadesmedidas on t.unidadmedida = unidadesmedidas.unidadmedida
 join tiposmonedas on t.monedaitem = tiposmonedas.codigomoneda
 join formaspagos on t.formapago::integer = formaspagos.idformapago
-where t.iditem <> 'NA' and t.codigocategoria <> 'NA' and t.formapago <> 'NA' 
+where t.iditem <> 'NA' and t.codigocategoria <> 'NA' and t.formapago <> 'NA';
 --delete from itemeslicitaciones;
