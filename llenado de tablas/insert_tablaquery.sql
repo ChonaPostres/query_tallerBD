@@ -65,7 +65,7 @@ select distinct trim(cast(case
     when traspaso.paisproveedor = 'Francia' then 'FR'
     when traspaso.paisproveedor = 'Alemania' then 'DE'
     when traspaso.paisproveedor = 'Colombia' then 'CO'
-    when traspaso.paisproveedor = 'Irlandia' then 'IE'
+    when traspaso.paisproveedor = 'Irlanda' then 'IE'
     when traspaso.paisproveedor = 'Bélgica' then 'BE'
     when traspaso.paisproveedor = 'República Dominicana' then 'DO'
     when traspaso.paisproveedor = 'Argentina' then 'AR'
@@ -79,7 +79,7 @@ select distinct trim(cast(case
     when traspaso.paisproveedor = 'Chile' then 'CL'
     when traspaso.paisproveedor = 'Polonia' then 'PL'
     when traspaso.paisproveedor = 'Austria' then 'AT'
-    when traspaso.paisproveedor = 'Canad ' then 'CA'
+    when traspaso.paisproveedor = 'Canadá' then 'CA'
     else 'NA' end as varchar(5))), cast(case
         when traspaso.paisproveedor = '' then 'NA'
         when traspaso.paisproveedor = 'CL' then 'NA'
@@ -96,7 +96,8 @@ from traspaso;
 
 -------Categorias-------
 insert into categorias (codigocategoria,categoria)
-select distinct codigocategoria::bigint, max(categoria) 
+select distinct codigocategoria::bigint, 
+case when char_length(max(categoria)) > 255 then left(max(categoria), 255) else max(categoria) end as categoria
 from traspaso
 where codigocategoria <> 'NA'
 group by codigocategoria;
@@ -527,11 +528,12 @@ on (proveedores.codigoproveedor = traspaso.codigoproveedor::integer);
 
 -------Sucursales-------
 insert into sucursales(codigosucursal, rutsucursal, sucursal, proveedor)
-select distinct codigosucursal::integer, rutsucursal, max(sucursal) as sucursal, proveedores.codigoproveedor 
+select distinct codigosucursal::integer, rutsucursal, max(sucursal) as sucursal, max(proveedores.codigoproveedor) as codigoproveedor
 from traspaso
 join proveedores
 on (proveedores.nombreproveedor = traspaso.nombreproveedor)
-group by codigosucursal, rutsucursal, proveedores.codigoproveedor;
+where rutsucursal <> 'NA'
+group by codigosucursal, rutsucursal
 --delete from sucursales;
 
 -------Productos-------
@@ -551,20 +553,42 @@ group by tmp_productos.codigoproductoonu;
 
 -------Licitaciones-------
 insert into licitaciones(idlicitacion,codlicitacion,link1,nombre,descripcion,procedencia,estratodirecto,escompraagil,codigotipo,idplandecompra,codigoestado,codigoestadoproveedor,fechacreacion,fechaenvio,fechasolicitudcancelacion,fechaultimamodificacion,fechaaceptacion,fechacancelacion,tieneitems,montototal,tipomoneda,montototalpesos,impuestos,tipoimpuesto,descuento,cargos,totalnetooc,codigounidadcompra,codigosucursal,financiamiento,porcentajeiva,pais,tipodespacho,formapago,codigolicitacion)
-select distinct t.idt::bigint, t.codigo, t.linkt, t.nombre, t.descripcion, procedencias.idprocedencia, 
-t.estratodirecto, t.escompraagil, tipos.codigotipo, t.idplandecompra, 
-estadoscompras.codigoestado, estadosproveedores.codigoestado, 
-case when t.fechacreacion = 'NA' then TO_DATE('01-01-1111', 'DD-MM-YYYY') else TO_DATE(t.fechacreacion, 'DD-MM-YYYY') end as fechacreacion,
-case when t.fechaenvio = 'NA' then TO_DATE('01-01-1111', 'DD-MM-YYYY') else TO_DATE(t.fechaenvio, 'DD-MM-YYYY') end as fechaenvio, 
-case when t.fechasolicitudcancelacion = 'NA' then TO_DATE('01-01-1111', 'DD-MM-YYYY') else TO_DATE(t.fechasolicitudcancelacion, 'DD-MM-YYYY') end as fechasolicitudcancelacion, 
-case when t.fechaultimamodificacion = 'NA' then TO_DATE('01-01-1111', 'DD-MM-YYYY') else TO_DATE(t.fechaultimamodificacion, 'DD-MM-YYYY') end as fechaultimamodificacion, 
-case when t.fechaaceptacion = 'NA' then TO_DATE('01-01-1111', 'DD-MM-YYYY') else TO_DATE(t.fechaaceptacion, 'DD-MM-YYYY') end as fechaaceptacion,
-case when t.fechacancelacion = 'NA' then TO_DATE('01-01-1111', 'DD-MM-YYYY') else TO_DATE(t.fechacancelacion, 'DD-MM-YYYY') end as fechacancelacion,
-t.tieneitems::integer, round(replace(t.montototal, ',','.')::numeric)::bigint, tiposmonedas.codigomoneda, case when replace(t.montototalpesos, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric else replace(t.montototalpesos, ',','.')::numeric end as montototalpesos, 
+select distinct 
+t.idt::bigint, 
+t.codigo, 
+t.linkt, 
+t.nombre, 
+t.descripcion, 
+max(procedencias.idprocedencia), 
+case when t.estratodirecto like '%Si%' then 'Si' when t.estratodirecto like '%No%' then 'No' else 'Na' end as estratodirecto, 
+t.escompraagil, 
+tipos.codigotipo, 
+t.idplandecompra, 
+estadoscompras.codigoestado, 
+estadosproveedores.codigoestado,
+case when t.fechacreacion = 'NA' then TO_DATE('01/01/1900', 'dd/mm/yyyy') else TO_DATE(translate(t.fechacreacion, '-', '/'), 'yyyy/mm/dd') end as fechacreacion, 
+case when t.fechaenvio = 'NA' then TO_DATE('01/01/1900', 'dd/mm/yyyy') else TO_DATE(translate(t.fechaenvio, '-', '/'), 'yyyy/mm/dd') end as fechaenvio, 
+case when t.fechasolicitudcancelacion = 'NA' then TO_DATE('01/01/1900', 'dd/mm/yyyy') else TO_DATE(translate(t.fechasolicitudcancelacion, '-', '/'), 'yyyy/mm/dd') end as fechasolicitudcancelacion, 
+case when t.fechaultimamodificacion = 'NA' then TO_DATE('01/01/1900', 'dd/mm/yyyy') else TO_DATE(translate(t.fechaultimamodificacion, '-', '/'), 'yyyy/mm/dd') end as fechaultimamodificacion,
+case when t.fechaaceptacion = 'NA' then TO_DATE('01/01/1900', 'dd/mm/yyyy') else TO_DATE(translate(t.fechaaceptacion, '-', '/'), 'yyyy/mm/dd') end as fechaaceptacion, 
+case when t.fechacancelacion = 'NA' then TO_DATE('01/01/1900', 'dd/mm/yyyy') else TO_DATE(translate(t.fechacancelacion, '-', '/'), 'yyyy/mm/dd') end as fechacancelacion, 
+t.tieneitems::integer, 
+round(replace(t.montototal, ',','.')::numeric)::bigint, 
+tiposmonedas.codigomoneda, 
+case when replace(t.montototalpesos, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric else replace(t.montototalpesos, ',','.')::numeric end as montototalpesos, 
 round(replace(t.impuestos, ',','.')::numeric)::bigint,
-tiposimpuestos.tipoimpuesto, round(replace(t.descuentos, ',','.')::numeric)::bigint, t.cargos::bigint, round(replace(t.totalnetooc, ',','.')::numeric)::bigint, unidadescompras.codigounidadcompra,
-sucursales.codigosucursal, t.financiamiento, t.porcentajeiva::integer, paises.codigopais, 
-tiposdespachos.idtipodespacho, formaspagos.idformapago, t.codigolicitacion
+tiposimpuestos.tipoimpuesto, 
+round(replace(t.descuentos, ',','.')::numeric)::bigint,
+round(replace(t.cargos, ',','.')::numeric)::bigint, 
+round(replace(t.totalnetooc, ',','.')::numeric)::bigint, 
+unidadescompras.codigounidadcompra,
+sucursales.codigosucursal, 
+t.financiamiento, 
+t.porcentajeiva::integer, 
+paises.codigopais, 
+tiposdespachos.idtipodespacho, 
+formaspagos.idformapago, 
+t.codigolicitacion
  
 from traspaso t
 join procedencias
@@ -589,26 +613,34 @@ join tiposdespachos
 on (tiposdespachos.idtipodespacho = t.tipodespacho::integer)
 join formaspagos
 on (formaspagos.idformapago = t.formapago::int)
-where t.codigolicitacion <> 'null';
+where t.codigolicitacion <> 'null' and t.formapago <> 'NA' --and t.idt = '37619077'
+group by t.idt, t.codigo, t.linkt, t.nombre, t.descripcion, t.estratodirecto, t.escompraagil,
+tipos.codigotipo,t.idplandecompra, estadoscompras.codigoestado, estadosproveedores.codigoestado,
+t.fechacreacion, fechaenvio, fechasolicitudcancelacion, fechaultimamodificacion, fechaaceptacion,
+fechacancelacion, t.tieneitems, t.montototal, tiposmonedas.codigomoneda,t.montototalpesos,t.impuestos, 
+t.descuentos, t.cargos,t.totalnetooc, unidadescompras.codigounidadcompra, sucursales.codigosucursal, t.financiamiento, 
+t.porcentajeiva, paises.codigopais, tiposdespachos.idtipodespacho, formaspagos.idformapago, 
+t.codigolicitacion, tiposimpuestos.tipoimpuesto;
 --delete from licitaciones;
 
 -------ItemesLicitaciones-------
-insert into itemeslicitaciones(iditem,idlicitacion,codigocategoria,
-							   codigoproducto,especificacioncomprados,especificacionproveedos,
-							   cantidad,unidadmedida,monedaitem,precioneto,
-							   totalcargo,totaldescuentos,totalimpuestos,
-							   totallineaneto,formapago)
-							   
-select distinct t.iditem::bigint,licitaciones.idlicitacion::bigint,
-				categorias.codigocategoria,productos.codigoproducto,
-				t.especificacioncomprador,t.especificacionproveedor,
-				round(replace(t.cantidad, ',','.')::numeric)::integer, unidadesmedidas.codigounidadmedida,
-				tiposmonedas.codigomoneda,
-				case when replace(t.precioneto, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric else replace(t.precioneto, ',','.')::numeric end as precioneto,
-				case when replace(t.totalcargos, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric else replace(t.totalcargos, ',','.')::numeric end as totalcargos,
-				t.totaldescuentos::integer,t.totalimpuestos::integer,
-				case when replace(t.totallineaneto, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric else replace(t.totallineaneto, ',','.')::numeric end as totallineaneto,
-				formaspagos.idformapago::integer
+insert into itemeslicitaciones(iditem,idlicitacion,codigocategoria,codigoproducto,especificacioncomprados,especificacionproveedos,cantidad,unidadmedida,monedaitem,precioneto,totalcargo,totaldescuentos,totalimpuestos,totallineaneto,formapago)						   
+select distinct 
+t.iditem::bigint,
+licitaciones.idlicitacion::bigint,
+categorias.codigocategoria,
+productos.codigoproducto,
+t.especificacioncomprador,
+t.especificacionproveedor,
+round(replace(t.cantidad, ',','.')::numeric)::integer, 
+unidadesmedidas.codigounidadmedida,
+tiposmonedas.codigomoneda,
+case when replace(t.precioneto, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric else replace(t.precioneto, ',','.')::numeric end as precioneto,
+case when replace(t.totalcargos, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric else replace(t.totalcargos, ',','.')::numeric end as totalcargos,
+round(replace(t.totaldescuentos, ',','.')::numeric)::integer, 
+t.totalimpuestos::integer,
+case when replace(t.totallineaneto, ',','.')::numeric > 9999.99::numeric(7,3) then 9999.99::numeric when replace(t.totallineaneto, ',','.')::numeric < 0 then 0 else replace(t.totallineaneto, ',','.')::numeric end as totallineaneto,
+formaspagos.idformapago::integer
 
 from traspaso t
 join licitaciones on t.idt::bigint = licitaciones.idlicitacion
@@ -617,4 +649,5 @@ join productos on t.codigoproductoonu::bigint = productos.codigoproducto
 join unidadesmedidas on t.unidadmedida = unidadesmedidas.unidadmedida
 join tiposmonedas on t.monedaitem = tiposmonedas.codigomoneda
 join formaspagos on t.formapago::integer = formaspagos.idformapago
+where t.iditem <> 'NA' and t.codigocategoria <> 'NA' and t.formapago <> 'NA' 
 --delete from itemeslicitaciones;
