@@ -14,6 +14,21 @@ having sum(IL.totallineaneto) >  all (
 )
 
 ------Parte 2------
+select distinct uc.unidadcompra, r.rubro from rubros r, unidadescompras uc
+where not exists(
+select unidadescompras.unidadcompra, rubros3.rubro from unidadescompras
+join licitaciones ON licitaciones.codigounidadcompra = unidadescompras.codigounidadcompra
+join itemeslicitaciones ON itemeslicitaciones.idlicitacion = licitaciones.idlicitacion
+join productos ON productos.codigoproductos = itemeslicitaciones.codigoproducto
+join rubros ON rubros.id_rubro = productos.rubro
+join rubros rubros2 ON rubros2.id_rubro = rubros.rubropadre
+join rubros rubros3 ON rubros3.id_rubro = rubros2.rubropadre
+where 
+	uc.unidadcompra = unidadescompras.unidadcompra
+and r.rubro = rubros3.rubro
+group by unidadescompras.unidadcompra, rubros3.rubro
+) and rubropadre is null
+group by uc.unidadcompra, r.rubro
 ------Parte 3------
 select P1.nombreproducto, count(*)
 from itemeslicitaciones as IL
