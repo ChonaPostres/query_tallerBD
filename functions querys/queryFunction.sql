@@ -46,5 +46,6 @@ end;
 $$
 language plpgsql;
 
--- Aqui se coloca el ejemplo									 
-select ValidaRUT('12345678-K');
+-- Consulta a tabla unidadescompras
+select rutunidadcompra, validarut(rutunidadcompra) from unidadescompras;
+where validarut(rutunidadcompra) <> 0
