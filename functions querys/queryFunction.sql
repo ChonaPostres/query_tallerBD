@@ -12,10 +12,12 @@ begin
 		return 2;
 	elseif (validarformatorut(rut) = false) then 
 		return 3;
+	elseif (validardvrut(rut) = false) then
+		return 4;
 	end if;
 	return 0;
 end;
-$$ 
+$$
 language plpgsql;
 
 create or replace function ValidarCaracteresRUT (rut character varying (12)) returns boolean
@@ -25,7 +27,7 @@ declare
 	count integer;
 begin
 	count = 1;
-	
+
 	loop
 	--raise notice 'substring: %', substr(rut, count, 1);
 	if (substr(rut, count, 1) != '0' and substr(rut, count, 1) != '1' and
@@ -70,6 +72,44 @@ begin
 end;
 $$
 language plpgsql;
--- Consulta a tabla unidadescompras para ver los rutunidadcompra que sean invalidos 
+create or replace function ValidarDVRUT (rut character varying (12)) returns boolean
+as
+$$
+declare
+	count integer;
+	modulo11 character varying(8);
+	copiarut character varying(8);
+	suma integer;
+	resultado integer;
+begin
+	count :=1;
+	suma :=0;
+	resultado :=0;
+	modulo11 :='23456723';
+	copiarut := translate (substr(rut,1,length(rut)-2),'.','');
+
+
+	while (count <= length(copiarut)) loop
+	suma := suma + (substr(copiarut,count,1)::integer * substr(modulo11,count,1)::integer);
+	count := count + 1;
+	end loop;
+
+	resultado := suma/11 - mod(suma,11);
+
+	if right(rut,1) = resultado::character varying(2) then
+		return true;
+	elseif 10 = resultado and right(rut,1) = 'k' then
+		return true;
+	elseif 10 = resultado and right(rut,1) = 'K' then
+		return true;
+	elseif 11 = resultado and right(rut,1) = '0' then
+		return true;
+	else return false;
+	end if;
+
+end;
+$$
+language plpgsql;
+-- Consulta a tabla unidadescompras para ver los rutunidadcompra que sean invalidos
 select rutunidadcompra, validarut(rutunidadcompra) from unidadescompras
 where validarut(rutunidadcompra) <> 0;
