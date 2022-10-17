@@ -46,6 +46,6 @@ end;
 $$
 language plpgsql;
 
--- Consulta a tabla unidadescompras
-select rutunidadcompra, validarut(rutunidadcompra) from unidadescompras;
-where validarut(rutunidadcompra) <> 0
+-- Consulta a tabla unidadescompras para ver los rutunidadcompra que sean invalidos 
+select rutunidadcompra, validarut(rutunidadcompra) from unidadescompras
+where validarut(rutunidadcompra) <> 0;
