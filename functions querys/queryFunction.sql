@@ -85,17 +85,17 @@ begin
 	count :=1;
 	suma :=0;
 	resultado :=0;
-	modulo11 :='23456723';
+	modulo11 :='32765432';
 	copiarut := translate (substr(rut,1,length(rut)-2),'.','');
-
+	--raise notice 'copiarut: %', copiarut;
 
 	while (count <= length(copiarut)) loop
 	suma := suma + (substr(copiarut,count,1)::integer * substr(modulo11,count,1)::integer);
 	count := count + 1;
 	end loop;
-
-	resultado := suma/11 - mod(suma,11);
-
+	--raise notice 'suma: %', suma;
+	resultado := 11 - mod(suma,11);
+	--raise notice 'resultado: %', resultado;
 	if right(rut,1) = resultado::character varying(2) then
 		return true;
 	elseif 10 = resultado and right(rut,1) = 'k' then
