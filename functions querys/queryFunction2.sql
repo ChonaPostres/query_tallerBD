@@ -61,3 +61,40 @@ language plpgsql;
 select * from Listaritemescompradosendedor(7231, 1881, null, 'JUAN CARLOS', null, null, null, date '2019/03/01', date '2019/04/01');
 select * from Listaritemescompradosendedor(7231, null, null, null, null, null, null, date '2019/03/01', date '2019/04/01');
 select * from Listaritemescompradosendedor(null, null, null, null, null, null, null, null, null);
+
+--parte 2
+
+create or replace function listamontosxrubros  (
+    fechaaceptacion_inicio date,
+	Fechaaceptacion_final date
+)
+returns table (
+	agrupacion character varying,
+	pago character varying
+)
+as
+$$
+declare
+mycursor cursor for select sum(round(totallineaneto)), rubros3.rubro from licitaciones
+join itemeslicitaciones on licitaciones.idlicitacion = itemeslicitaciones.idlicitacion 
+join productos on itemeslicitaciones.codigoproducto = productos.codigoproductos
+join unidadescompras ON unidadescompras.codigounidadcompra = licitaciones.codigounidadcompra
+join rubros on productos.rubro = rubros.id_rubro
+join rubros rubros2 ON rubros2.id_rubro = rubros.rubropadre
+join rubros rubros3 ON rubros3.id_rubro = rubros2.rubropadre
+where licitaciones.fechaaceptacion between fechaaceptacion_inicio and Fechaaceptacion_final
+group by licitaciones.fechaaceptacion, productos.nombreproducto, rubros.rubro, rubros2.rubro, rubros3.rubro;
+begin
+open mycursor;
+for rubro in mycursor loop
+	return query
+		select mycursor.rubro, mycursor.sum;
+end loop;
+end;
+$$
+language plpgsql;
+-- Ejemplos de uso
+select * from listamontosxrubros(date '2019/03/01', date '2019/04/01');
+
+
+
