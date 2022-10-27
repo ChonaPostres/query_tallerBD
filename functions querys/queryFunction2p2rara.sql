@@ -7,7 +7,7 @@ declare
 	nivel1 cursor for select id_rubro, rubro, 0::bigint from rubros where rubropadre is null;
 	nivel2 cursor (padre integer) for select rubros.id_rubro, rubros.rubro, 0::bigint from rubros where rubropadre = padre;
 	nivel3 cursor (padre integer) for select rubros.id_rubro, rubros.rubro, sum(itemeslicitaciones.totallineaneto) from rubros join productos ON productos.rubro = rubros.id_rubro join itemeslicitaciones ON itemeslicitaciones.codigoproducto = productos.codigoproductos join licitaciones ON itemeslicitaciones.idlicitacion = licitaciones.idlicitacion where rubropadre = padre and licitaciones.fechaaceptacion between fechaaceptacion_inicio and Fechaaceptacion_final group by rubros.id_rubro, rubros.rubro ;
-	nivel4 cursor (padre integer) for select rubros.id_rubro, productos.nombreproducto, sum(itemeslicitaciones.totallineaneto) from rubros join productos ON productos.rubro = rubros.id_rubro join itemeslicitaciones ON itemeslicitaciones.codigoproducto = productos.codigoproductos join licitaciones ON itemeslicitaciones.idlicitacion = licitaciones.idlicitacion where rubropadre = padre and licitaciones.fechaaceptacion between fechaaceptacion_inicio and Fechaaceptacion_final group by rubros.id_rubro, productos.nombreproducto;
+	nivel4 cursor (padre integer) for select rubros.id_rubro, productos.nombreproducto, sum(itemeslicitaciones.totallineaneto) from rubros join productos ON productos.rubro = rubros.id_rubro join itemeslicitaciones ON itemeslicitaciones.codigoproducto = productos.codigoproductos join licitaciones ON itemeslicitaciones.idlicitacion = licitaciones.idlicitacion where id_rubro = padre and licitaciones.fechaaceptacion between fechaaceptacion_inicio and Fechaaceptacion_final group by rubros.id_rubro, productos.nombreproducto;
 
 	registro1 t_prodvalor;
 	registro2 t_prodvalor;
@@ -31,7 +31,7 @@ begin
 				exit when not found;
 				return next registro3;
 				raise notice 'registro3: %', registro3.idrubro;
-				open nivel4 (padre:=registro2.idrubro);
+				open nivel4 (padre:=registro3.idrubro);
 				loop
 					fetch next from nivel4 into registro4;
 					exit when not found;
