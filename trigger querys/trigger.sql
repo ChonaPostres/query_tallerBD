@@ -31,24 +31,19 @@ create trigger TR_Insert_licitaciones after insert on licitaciones
 for each row execute procedure SP_auditoria();
 
 create trigger TR_Update_licitaciones after update on licitaciones
-for each row
-execute procedure SP_auditoria();
+for each row execute procedure SP_auditoria();
 
 create trigger TR_Delete_licitaciones before delete on licitaciones
-for each row
-execute procedure SP_auditoria();
+for each row execute procedure SP_auditoria();
 
 create trigger TR_Insert_itemeslicitaciones after insert on itemeslicitaciones
-for each row
-execute procedure SP_auditoria();
+for each row execute procedure SP_auditoria();
 
 create trigger TR_Update_itemeslicitaciones after update on itemeslicitaciones
-for each row
-execute procedure SP_auditoria();
+for each row execute procedure SP_auditoria();
 
 create trigger TR_Delete_itemeslicitaciones before delete on itemeslicitaciones
-for each row
-execute procedure SP_auditoria();
+for each row execute procedure SP_auditoria();
 
 -- Ejemplo Update licitaciones
 update licitaciones set nombre = 'RUTA 1, KM. 10,00 AL KM. 25,00 TAL TAL-ANTOFAGASTA' where idlicitacion = 28856773;
@@ -57,3 +52,40 @@ select * from licitaciones where idlicitacion = 28856773;
 -- Ver Tablas
 select * from licitaciones
 select * from auditoria;
+
+-- Parte 3
+
+create or replace function SP_sumarizacion () returns Trigger
+as 
+$$
+declare
+begin
+	if ((TG_OP = 'INSERT' or TG_OP = 'UPDATE' or TG_OP = 'DELETE') and new.totallineaneto <> old.totallineaneto) then
+		update licitaciones set totalnetooc = new.totallineaneto where idlicitacion = new.idlicitacion;
+	else
+		raise notice 'accion no encontrada: %', TG_OP;
+	end if;
+	
+	if TG_OP = 'DELETE' then
+    	return old;
+	else
+    	return new;
+END IF;
+end;
+$$
+language plpgsql;
+
+create trigger TR_Insert_itemeslicitaciones_sumarizacion after insert on itemeslicitaciones
+for each row execute procedure SP_sumarizacion();
+
+create trigger TR_Update_itemeslicitaciones_sumarizacion after update on itemeslicitaciones
+for each row execute procedure SP_sumarizacion();
+
+create trigger TR_Delete_itemeslicitaciones_sumarizacion before delete on itemeslicitaciones
+for each row execute procedure SP_sumarizacion();
+
+-- Ejemplo:
+update itemeslicitaciones set totallineaneto = 2 where idlicitacion = 28856773;
+update itemeslicitaciones set totallineaneto = 3534300000 where idlicitacion = 28856773;
+select totalnetooc from licitaciones where idlicitacion = 28856773;
+select totallineaneto from itemeslicitaciones where idlicitacion = 28856773;
