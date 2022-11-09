@@ -53,6 +53,30 @@ select * from licitaciones where idlicitacion = 28856773;
 select * from licitaciones
 select * from auditoria;
 
+-- Parte 2
+
+create table if not exists presupuestomensual("codigounidadcompra" varchar, "periodo" date, "presupuesto" bigint);
+CREATE OR REPLACE FUNCTION Vpresupuesto()
+  RETURNS trigger AS
+$$
+BEGIN
+if
+	(select sum(round(totallineaneto)) from itemeslicitaciones
+	join licitaciones ON licitaciones.idlicitacion = itemeslicitaciones.idlicitacion
+	join unidadescompras ON unidadescompras.codigounidadcompra = licitaciones.codigounidadcompra
+	join productos ON productos.codigoproductos = itemeslicitaciones.codigoproducto
+	where presupuestomensual.codigounidadcompra == unidadescompras.codigounidadcompra && presupuestomensual.periodo like licitaciones.fechacreacion::char varying(25)
+	group by unidadescompras.unidadcompra) > presupuesto then
+	return new;
+end if;
+END;
+
+$$
+LANGUAGE 'plpgsql';
+
+create trigger TR_Insert_licitaciones after insert on licitaciones
+for each row execute procedure Vpresupuesto();
+
 -- Parte 3
 
 create or replace function SP_sumarizacion () returns Trigger
