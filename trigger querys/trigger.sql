@@ -56,26 +56,44 @@ select * from auditoria;
 -- Parte 2
 
 create table if not exists presupuestomensual("codigounidadcompra" varchar, "periodo" date, "presupuesto" bigint);
-CREATE OR REPLACE FUNCTION Vpresupuesto()
-  RETURNS trigger AS
-$$
-BEGIN
-if
-	(select sum(round(totallineaneto)) from itemeslicitaciones
-	join licitaciones ON licitaciones.idlicitacion = itemeslicitaciones.idlicitacion
-	join unidadescompras ON unidadescompras.codigounidadcompra = licitaciones.codigounidadcompra
-	join productos ON productos.codigoproductos = itemeslicitaciones.codigoproducto
-	where presupuestomensual.codigounidadcompra == unidadescompras.codigounidadcompra && presupuestomensual.periodo like licitaciones.fechacreacion::char varying(25)
-	group by unidadescompras.unidadcompra) > presupuesto then
-	return new;
-end if;
-END;
+drop table presupuestomensual;
 
+insert into presupuestomensual (codigounidadcompra, periodo, presupuesto)
+select distinct codigounidadcompra, to_date(to_char(fechaenvio, 'YYYYMM'), 'YYYYMM'), sum(totalnetooc) from licitaciones
+group by codigounidadcompra, to_date(to_char(fechaenvio, 'YYYYMM'), 'YYYYMM');
+
+select * from presupuestomensual;
+
+CREATE OR REPLACE FUNCTION Vpresupuesto() returns trigger AS
+$$
+declare
+	totalpresupuesto bigint;
+BEGIN
+	totalpresupuesto = (select sum(presupuesto) from presupuestomensual 
+						group by codigounidadcompra, periodo
+						having (codigounidadcompra = (new.codigounidadcompra)::varchar and periodo <= to_date(to_char(new.fechaenvio, 'YYYYMM'), 'YYYYMM')
+						and periodo >= to_date(extract(year from new.fechaenvio) || '-' || extract(month from new.fechaenvio - 1) ||'-01')));
+	raise notice 'total presupuesto: %', totalpresupuesto;
+	if (new.totalnetooc > totalpresupuesto) then
+		raise notice 'no queda presupuesto para insertar licitacion: %', new.totalnetooc;
+		return null;
+	end if;
+	return new;
+END;
 $$
 LANGUAGE 'plpgsql';
-
-create trigger TR_Insert_licitaciones after insert on licitaciones
+								
+create trigger TR_Insert_licitaciones_presupuesto before insert on licitaciones
 for each row execute procedure Vpresupuesto();
+
+create trigger TR_Update_licitaciones_presupuesto before update on licitaciones
+for each row execute procedure Vpresupuesto();
+
+select totalnetooc from licitaciones where codigounidadcompra = 5961;
+select * from licitaciones;
+update licitaciones set totalnetooc = 3534300001 where idlicitacion = 28856773;
+select * from presupuestomensual where codigounidadcompra = '5961';
+
 
 -- Parte 3
 
