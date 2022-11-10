@@ -67,15 +67,21 @@ select * from presupuestomensual;
 CREATE OR REPLACE FUNCTION Vpresupuesto() returns trigger AS
 $$
 declare
-	totalpresupuesto bigint;
+	totalpresupuesto_year bigint;
+	totalpresupuesto_month bigint;
+	totalgasto bigint;
 BEGIN
-	totalpresupuesto = (select sum(presupuesto) from presupuestomensual 
+	totalpresupuesto_year = (select sum(presupuesto) from presupuestomensual 
 						group by codigounidadcompra, periodo
-						having (codigounidadcompra = (new.codigounidadcompra)::varchar and periodo <= to_date(to_char(new.fechaenvio, 'YYYYMM'), 'YYYYMM')
-						and periodo >= to_date(extract(year from new.fechaenvio) || '-' || extract(month from new.fechaenvio - 1) ||'-01')));
-	raise notice 'total presupuesto: %', totalpresupuesto;
-	if (new.totalnetooc > totalpresupuesto) then
-		raise notice 'no queda presupuesto para insertar licitacion: %', new.totalnetooc;
+						having (codigounidadcompra = (new.codigounidadcompra)::varchar 
+						and periodo <= to_date(to_char(new.fechaenvio, 'YYYYMM'), 'YYYYMM')
+						and periodo >= (new.fechaenvio - interval '1 year') ));
+	totalpresupuesto_month = totalpresupuesto_year / 12;
+	raise notice 'total presupuesto año: %', totalpresupuesto_year;
+	raise notice 'total presupuesto mes: %', totalpresupuesto_month;
+	raise notice 'total gastado: %', new.montototalpesos;		
+	if (new.montototalpesos > totalpresupuesto_month) then
+		raise notice 'no queda presupuesto para insertar licitacion: %', new.montototalpesos;
 		return null;
 	end if;
 	return new;
@@ -84,9 +90,6 @@ $$
 LANGUAGE 'plpgsql';
 								
 create trigger TR_Insert_licitaciones_presupuesto before insert on licitaciones
-for each row execute procedure Vpresupuesto();
-
-create trigger TR_Update_licitaciones_presupuesto before update on licitaciones
 for each row execute procedure Vpresupuesto();
 
 select totalnetooc from licitaciones where codigounidadcompra = 5961;
