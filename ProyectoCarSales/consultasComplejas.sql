@@ -1,7 +1,7 @@
-select o.oferta, o.price_aed, modelos.modelo, empresas.empresa, tipo_cuerpos.tipo_cuerpo, anios.anio, colores.color, specs_regionales.specs_regional, 
+select o.oferta, o.precio_aed, modelos.modelo, empresas.empresa, tipo_cuerpos.tipo_cuerpo, anios.anio, colores.color, specs_regionales.specs_regional, 
 costados_manubrio.costado_manubrio, tipo_transmisiones.tipo_transmision, estados.kilometros, condicion_cuerpos.condicion_cuerpo, 
 condicion_mecanicas.condicion_mecanica, motores.motor, tipo_combustibles.tipo_combustible, horse_powers.horse_power, cilindros.cilindro, 
-tipo_vendedores.tipo_vendedor, o.date_posted  from ofertas as o
+tipo_vendedores.tipo_vendedor, o.fecha_publicacion, o.ciudad_emirato  from ofertas as o
 join tipo_vendedores on (tipo_vendedores.id_tipo_vendedor = o.tipo_vendedor)
 -- Vehiculos
 join vehiculos on (vehiculos.id_vehiculo = o.vehiculo)

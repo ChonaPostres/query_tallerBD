@@ -126,8 +126,8 @@ join motores on (motores.motor = (case when t.motors_trim is null then 'Other' e
 and motores.horse_power = horse_powers.id_horse_power and motores.cilindros = cilindros.id_cilindro);
 
 -- Tabla ofertas
-insert into ofertas(oferta, price_aed, vehiculo, tipo_vendedor, date_posted)
-select case when t.title is null then 'Unknown' else t.title end, (replace(price_in_aed, ',','')::integer), vehiculos.id_vehiculo, tipo_vendedores.id_tipo_vendedor, TO_DATE(t.date_posted, 'dd/mm/yyyy')
+insert into ofertas(oferta, precio_aed, vehiculo, tipo_vendedor, fecha_publicacion, ciudad_emirato)
+select case when t.title is null then 'Unknown' else t.title end, (replace(price_in_aed, ',','')::integer), vehiculos.id_vehiculo, tipo_vendedores.id_tipo_vendedor, TO_DATE(t.date_posted, 'dd/mm/yyyy'), t.emirate
 from traspaso as t
 join tipo_vendedores on (tipo_vendedores.tipo_vendedor = t.seller_type)
 join modelos on (modelos.modelo = t.model)

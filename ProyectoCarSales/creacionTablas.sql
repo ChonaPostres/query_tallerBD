@@ -155,10 +155,11 @@ constraint fk_vehiculos_motores
 create table ofertas(
 id_oferta serial not null,
 oferta varchar(255) not null,
-price_aed int not null,
+precio_aed int not null,
 vehiculo int not null,
 tipo_vendedor int not null,
-date_posted date default to_date('1/1/1900','DD/MM/YYYY'),
+fecha_publicacion date default to_date('1/1/1900','DD/MM/YYYY'),
+ciudad_emirato varchar(30) not null,
 constraint pk_ofertas primary key (id_oferta),
 constraint fk_ofertas_vehiculos
    foreign key (vehiculo) references vehiculos(id_vehiculo),
