@@ -1,3 +1,9 @@
+-- Indices para optimizar el plan de busqueda
+create index color on colores(color);
+create index anio on anios(anio);
+create index horse_power on horse_powers(horse_power);
+
+-- Consulta compleja
 select o.oferta, o.precio_aed, modelos.modelo, empresas.empresa, tipo_cuerpos.tipo_cuerpo, anios.anio, colores.color, specs_regionales.specs_regional, 
 costados_manubrio.costado_manubrio, tipo_transmisiones.tipo_transmision, estados.kilometros, condicion_cuerpos.condicion_cuerpo, 
 condicion_mecanicas.condicion_mecanica, motores.motor, tipo_combustibles.tipo_combustible, horse_powers.horse_power, cilindros.cilindro, 
@@ -24,4 +30,4 @@ join motores on (motores.id_motor = vehiculos.motor)
 join tipo_combustibles on (tipo_combustibles.id_tipo_combustible = motores.combustible)
 join horse_powers on (horse_powers.id_horse_power = motores.horse_power)
 join cilindros on (cilindros.id_cilindro = motores.cilindros)
-
+where colores.color = 'Blue' and anios.anio = '2011' and (horse_powers.horse_power = '150 - 200 HP' or horse_powers.horse_power = '200 - 300 HP');
